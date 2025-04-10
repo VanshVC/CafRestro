@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegant Restaurant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="elegant-theme.css">
+    <link rel="stylesheet" href="dish-slider.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
+    
+    <!-- Critical CSS loaded first -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="elegant-theme.css">
+    
+    <!-- Prefetch for 3D models -->
+    <link rel="prefetch" href="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+    
+    <!-- Defer non-critical resources -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    
+    <!-- Defer model-viewer loading to improve initial page load -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" defer></script>
+    
+    <!-- Preload critical images -->
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80">
+</head>
+<body>
+    <!-- Existing content will continue here but is omitted for brevity -->
+    
+    <!-- Main Script -->
+    <script src="script.js"></script>
+    
+    <!-- Video Background Script -->
+    <script src="video-background.js"></script>
+    
+    <!-- Inline script for debugging -->
+    <script>
+        // Debug script to ensure the slider is initialized
+        window.addEventListener('load', function() {
+            console.log('Window loaded, initializing components');
+            
+            // Force initDishSlider to run
+            setTimeout(function() {
+                if (typeof initDishSlider === 'function') {
+                    console.log('Calling initDishSlider directly');
+                    initDishSlider();
+                } else {
+                    console.error('initDishSlider function not found');
+                }
+                
+                // Force dish slider visibility
+                const dishSlider = document.getElementById('dish-slider');
+                if (dishSlider) {
+                    console.log('Dish slider element found, forcing visibility');
+                    dishSlider.style.display = 'block';
+                    dishSlider.style.visibility = 'visible';
+                    dishSlider.style.opacity = '1';
+                    
+                    const sliderItems = dishSlider.querySelectorAll('.slider-item');
+                    console.log('Found ' + sliderItems.length + ' slider items');
+                    
+                    const sliderTrack = dishSlider.querySelector('.slider-track');
+                    if (sliderTrack) {
+                        sliderTrack.style.display = 'flex';
+                        sliderTrack.style.visibility = 'visible';
+                        sliderTrack.style.opacity = '1';
+                        
+                        // Apply initial transform to show first items
+                        sliderTrack.style.transform = 'translateX(0)';
+                        
+                        // Make first items active
+                        const itemsToShow = window.innerWidth < 768 ? 1 : (window.innerWidth < 1024 ? 2 : 3);
+                        sliderItems.forEach((item, idx) => {
+                            if (idx < itemsToShow) {
+                                item.classList.add('active');
+                            } else if (idx >= itemsToShow) {
+                                item.classList.add('next');
+                            }
+                            item.style.opacity = '1';
+                            item.style.visibility = 'visible';
+                        });
+                    }
+                    
+                    // Force controls and dots visibility
+                    const controls = dishSlider.querySelector('.slider-controls');
+                    if (controls) {
+                        controls.style.display = 'flex';
+                        controls.style.visibility = 'visible';
+                        controls.style.opacity = '1';
+                    }
+                    
+                    const dots = dishSlider.querySelector('.slider-dots');
+                    if (dots) {
+                        dots.style.display = 'flex';
+                        dots.style.visibility = 'visible';
+                        dots.style.opacity = '1';
+                        
+                        // Create dots if they don't exist
+                        if (dots.children.length === 0) {
+                            const dotsCount = Math.ceil(sliderItems.length / itemsToShow);
+                            for (let i = 0; i < dotsCount; i++) {
+                                const dot = document.createElement('span');
+                                dot.classList.add('slider-dot');
+                                if (i === 0) dot.classList.add('active');
+                                dots.appendChild(dot);
+                            }
+                        }
+                    }
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html> 
