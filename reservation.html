@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation | Chaos Café </title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="elegant-theme.css">
+    <link rel="stylesheet" href="dish-slider.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="menu.css">
+    <style>
+        /* Floor Plan Hover Effects */
+        .table-item-3d {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .table-item-3d:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .table-item-3d:hover .table-shape {
+            background-color: rgba(249, 185, 73, 0.7);
+        }
+        
+        .table-item-3d:hover .table-info {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+        
+        .table-item-3d:hover .chair {
+            transform: translateY(-2px);
+            background-color: rgba(217, 78, 78, 0.8);
+        }
+        
+        .table-info {
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .chair {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        
+        /* Hover effects for different areas */
+        .bar-stool.hovering {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .bar-stool.hovering:hover {
+            transform: translateY(-5px);
+        }
+        
+        .bar-stool.hovering:hover .stool-seat {
+            background-color: #f9b949;
+        }
+        
+        /* Gate door hover effect */
+        .gate-door {
+            transition: transform 0.3s ease;
+        }
+        
+        .gate-doors:hover .gate-door.left {
+            transform: translateX(-5px) rotateY(20deg);
+        }
+        
+        .gate-doors:hover .gate-door.right {
+            transform: translateX(5px) rotateY(-20deg);
+        }
+        
+        /* Kitchen hover effects */
+        .cooking-station, .prep-station, .dish-station {
+            transition: transform 0.3s ease, color 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .cooking-station:hover, .prep-station:hover, .dish-station:hover {
+            transform: scale(1.2);
+            color: #f9b949;
+        }
+        
+        /* Area marker hover effect */
+        .area-marker {
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+
+        
+        /* Reception desk hover */
+        .reception-desk {
+            transition: transform 0.3s ease;
+        }
+        
+        .reception-desk:hover {
+            transform: scale(1.05);
+        }
+        
+        .reception-desk:hover .reception-staff,
+        .reception-desk:hover .desk-computer {
+            color: #f9b949;
+        }
+        
+        /* Table selection effect */
+        .table-item-3d.selected {
+            transform: translateY(-8px) scale(1.1);
+            box-shadow: 0 15px 30px rgba(217, 78, 78, 0.4);
+        }
+        
+        .table-item-3d.selected .table-shape {
+            background-color: rgba(217, 78, 78, 0.8);
+        }
+        
+        .table-item-3d.selected .table-info {
+            opacity: 1;
+            transform: translateY(-8px);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Enhanced animations and transitions */
+        @keyframes tableHoverPulse {
+            0% { box-shadow: 0 5px 15px rgba(249, 185, 73, 0.2); transform: translateY(-2px) scale(1.02); }
+            50% { box-shadow: 0 12px 30px rgba(249, 185, 73, 0.6); transform: translateY(-8px) scale(1.08); }
+            100% { box-shadow: 0 5px 15px rgba(249, 185, 73, 0.2); transform: translateY(-2px) scale(1.02); }
+        }
+        
+        @keyframes chairHoverPulse {
+            0% { transform: translateY(-2px) rotate(0deg); }
+            25% { transform: translateY(-4px) rotate(-2deg); }
+            50% { transform: translateY(-6px) rotate(0deg); }
+            75% { transform: translateY(-4px) rotate(2deg); }
+            100% { transform: translateY(-2px) rotate(0deg); }
+        }
+        
+        @keyframes areaMarkerPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes tvScreenGlow {
+            0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(100, 200, 255, 0.7); }
+            100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+        }
+        
+        @keyframes kitchenStationActivity {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-5deg); }
+            50% { transform: scale(1.3) rotate(0deg); }
+            75% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .table-item-3d:hover {
+            animation: tableHoverPulse 2s infinite;
+            z-index: 100;
+        }
+        
+        .table-item-3d:hover .chair {
+            animation: chairHoverPulse 2s infinite;
+        }
+        
+
+        
+        .tv-screen:hover {
+            animation: tvScreenGlow 2s infinite;
+        }
+        
+        .cooking-station:hover, .prep-station:hover, .dish-station:hover {
+            animation: kitchenStationActivity 1.5s infinite;
+        }
+        
+        /* 3D perspective enhancement */
+        .floor-plan-3d {
+            perspective: 1200px;
+            transform-style: preserve-3d;
+        }
+        
+        .scene {
+            transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center center;
+            transform-style: preserve-3d;
+        }
+        
+        /* Entrance animation for floor plan */
+        @keyframes floorPlanEntrance {
+            0% { transform: translateY(30px) scale(0.9); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        
+        .floor-plan-wrapper {
+            animation: floorPlanEntrance 1.2s ease-out forwards;
+        }
+        
+        /* Table selection animation */
+        @keyframes tableSelect {
+            0% { transform: translateY(-8px) scale(1.1); box-shadow: 0 15px 30px rgba(217, 78, 78, 0.4); }
+            50% { transform: translateY(-12px) scale(1.15); box-shadow: 0 20px 40px rgba(217, 78, 78, 0.6); }
+            100% { transform: translateY(-8px) scale(1.1); box-shadow: 0 15px 30px rgba(217, 78, 78, 0.4); }
+        }
+        
+        .table-item-3d.selected {
+            animation: tableSelect 3s infinite;
+        }
+        
+        /* Improved interactive elements */
+        /* Bar counter glow */
+        @keyframes barCounterGlow {
+            0% { box-shadow: inset 0 0 10px rgba(249, 185, 73, 0.2); }
+            50% { box-shadow: inset 0 0 30px rgba(249, 185, 73, 0.7); }
+            100% { box-shadow: inset 0 0 10px rgba(249, 185, 73, 0.2); }
+        }
+        
+        .bar-counter:hover .bar-surface {
+            animation: barCounterGlow 2s infinite;
+        }
+        
+        /* Door animation enhancement */
+        @keyframes doorSwingLeft {
+            0% { transform: translateX(0) rotateY(0deg); }
+            50% { transform: translateX(-15px) rotateY(30deg); }
+            100% { transform: translateX(0) rotateY(0deg); }
+        }
+        
+        @keyframes doorSwingRight {
+            0% { transform: translateX(0) rotateY(0deg); }
+            50% { transform: translateX(15px) rotateY(-30deg); }
+            100% { transform: translateX(0) rotateY(0deg); }
+        }
+        
+        .gate-doors:hover .gate-door.left {
+            animation: doorSwingLeft 2s infinite;
+        }
+        
+        .gate-doors:hover .gate-door.right {
+            animation: doorSwingRight 2s infinite;
+        }
+        
+        /* Reception desk activity */
+        @keyframes receptionActivity {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .reception-staff:hover, .desk-computer:hover {
+            animation: receptionActivity 1s infinite;
+            color: #f9b949;
+        }
+        
+        /* Area highlighting on filter selection */
+        @keyframes areaHighlight {
+            0% { background-color: rgba(249, 185, 73, 0.0); }
+            50% { background-color: rgba(249, 185, 73, 0.1); }
+            100% { background-color: rgba(249, 185, 73, 0.0); }
+        }
+        
+        .area-filter-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            animation: areaHighlight 2s infinite;
+            z-index: -1;
+        }
+        
+        /* Area filter buttons */
+        .area-filter-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .area-filter-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #d94e4e;
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .area-filter-btn:hover::after,
+        .area-filter-btn.active::after {
+            transform: scaleX(1);
+        }
+        
+        .area-filter-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* Floor plan scene transition */
+        .scene {
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center center;
+        }
+        
+        /* Control buttons hover effect */
+        .floor-control-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .floor-control-btn:hover {
+            background-color: #d94e4e;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Selection feedback styling */
+        #selection-feedback {
+            background-color: rgba(249, 185, 73, 0.9);
+            color: #222;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        
+        #selection-feedback.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        
+        /* Interactive stool animations */
+        @keyframes stoolBounce {
+            0% { transform: translateY(0) scale(1); }
+            30% { transform: translateY(-10px) scale(1.1); }
+            50% { transform: translateY(-5px) scale(1.05); }
+            70% { transform: translateY(-8px) scale(1.08); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        
+        .bar-stool:hover {
+            animation: stoolBounce 0.8s ease forwards;
+        }
+        
+        .bar-stool:hover .stool-seat {
+            background-color: #f9b949;
+            transition: background-color 0.3s ease;
+        }
+        
+        /* Dynamic floor plan zoom effect */
+        .floor-plan-wrapper:hover .scene {
+            transition: transform 2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        /* Better filter button effects */
+        .area-filter-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .area-filter-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background-color: #d94e4e;
+            transition: all 0.3s ease;
+        }
+        
+        .area-filter-btn:hover::after,
+        .area-filter-btn.active::after {
+            left: 0;
+            width: 100%;
+        }
+        
+        .area-filter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 3D rotation for tables on hover */
+        .table-item-3d {
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .table-item-3d:hover {
+            transform: translateY(-8px) scale(1.08) rotateX(10deg);
+        }
+        
+        /* Calendar and Date Selection Styles */
+        .availability-date {
+            margin-bottom: 2rem;
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.8));
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .date-selection-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .date-selection-wrapper label {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #f5f5f5;
+            margin-right: 1rem;
+            flex: 1 1 100%;
+        }
+        
+        .date-picker-container {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        #availability-date {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid rgba(217, 78, 78, 0.5);
+            background-color: rgba(20, 20, 20, 0.7);
+            color: #f5f5f5;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+            padding-right: 3rem;
+        }
+        
+        #availability-date:focus,
+        #availability-date:hover {
+            border-color: rgba(217, 78, 78, 0.9);
+            box-shadow: 0 0 15px rgba(217, 78, 78, 0.3);
+        }
+        
+        .calendar-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #d94e4e;
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+        
+        @keyframes pulseAnimation {
+            0% { transform: translateY(-50%) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-50%) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-50%) scale(1); opacity: 0.7; }
+        }
+        
+        .pulse-animation {
+            animation: pulseAnimation 1.5s infinite ease-in-out;
+        }
+        
+        #check-availability-btn {
+            background: linear-gradient(145deg, #d94e4e, #c13c3c);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(217, 78, 78, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 0 0 auto;
+        }
+        
+        #check-availability-btn:hover {
+            background: linear-gradient(145deg, #e05e5e, #d14c4c);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(217, 78, 78, 0.4);
+        }
+        
+        /* Visual Calendar Styling */
+        .visual-calendar {
+            margin: 2rem 0;
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.8));
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #current-month {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            font-family: var(--heading-font);
+            letter-spacing: 1px;
+        }
+        
+        .month-nav {
+            background: transparent;
+            color: #d94e4e;
+            border: 2px solid rgba(217, 78, 78, 0.5);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .month-nav:hover {
+            background-color: rgba(217, 78, 78, 0.2);
+            transform: scale(1.1);
+            border-color: rgba(217, 78, 78, 0.9);
+        }
+        
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .weekdays div {
+            font-weight: 500;
+            color: #f9b949;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .weekdays .weekend {
+            color: #d94e4e;
+        }
+        
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .days div {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 500;
+            color: #f5f5f5;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .days div:hover {
+            background-color: rgba(217, 78, 78, 0.3);
+            transform: scale(1.1);
+            color: white;
+        }
+        
+        .days div.active {
+            background-color: #d94e4e;
+            color: white;
+            font-weight: 600;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(217, 78, 78, 0.5);
+        }
+        
+        .days div.available::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+        }
+        
+        .days div.limited::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #FF9800;
+        }
+        
+        .days div.unavailable::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #F44336;
+        }
+        
+        .days div.unavailable {
+            color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.02);
+            cursor: not-allowed;
+        }
+        
+        .days div.today {
+            border: 2px solid #f9b949;
+        }
+        
+        .days div.other-month {
+            color: rgba(255, 255, 255, 0.2);
+            background-color: transparent;
+        }
+        
+        /* Time Slots Styling */
+        .availability-display {
+            margin-top: 2rem;
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.8));
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .availability-display h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #f5f5f5;
+            font-family: var(--heading-font);
+            letter-spacing: 1px;
+        }
+        
+        .availability-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-indicator.available {
+            background-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+        
+        .status-indicator.limited {
+            background-color: #FF9800;
+            box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+        }
+        
+        .status-indicator.unavailable {
+            background-color: #F44336;
+            box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+        }
+        
+        .time-slots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .time-period {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .time-period h4 {
+            color: #f9b949;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(249, 185, 73, 0.3);
+            font-size: 1.2rem;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+        
+        .time-slot {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .time-slot:hover {
+            background: rgba(217, 78, 78, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .time-slot.selected {
+            background-color: rgba(217, 78, 78, 0.5);
+            border-color: #d94e4e;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(217, 78, 78, 0.3);
+        }
+        
+        .time {
+            display: block;
+            font-weight: 500;
+            color: #f5f5f5;
+            margin-bottom: 0.3rem;
+        }
+        
+        .time-slot .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+        }
+        
+        /* Floor Plan Container Styling */
+        .floor-plan-container {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.8));
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .floor-plan-container h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            color: #f5f5f5;
+            font-family: var(--heading-font);
+            letter-spacing: 1px;
+        }
+        
+        /* Area filter buttons */
+        .area-filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .area-filter-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .floor-plan-controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+        
+        .floor-control-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* Floor plan styling */
+        .floor-plan-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Selection feedback */
+        #selection-feedback {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            background: linear-gradient(145deg, rgba(249, 185, 73, 0.8), rgba(217, 168, 61, 0.8));
+            color: #000;
+            font-weight: 500;
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(249, 185, 73, 0.3);
+        }
+        
+        #selection-feedback.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .time-slots-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-selection-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-picker-container {
+                width: 100%;
+            }
+            
+            #check-availability-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .floor-plan-wrapper {
+                height: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .days div {
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .area-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .area-filter-btn {
+                text-align: center;
+            }
+            
+            .time-slots {
+                grid-template-columns: 1fr;
+            }
+            
+            .floor-plan-wrapper {
+                height: 350px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .visual-calendar {
+                padding: 1rem;
+            }
+            
+            .weekdays div {
+                font-size: 0.8rem;
+            }
+            
+            .days div {
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            
+            .floor-plan-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .floor-plan-wrapper {
+                height: 300px;
+            }
+        }
+        
+        /* Reservation Form Styling */
+        .reservation-form-wrapper {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.8));
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .reservation-form-wrapper h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: #f5f5f5;
+            font-family: var(--heading-font);
+            letter-spacing: 1px;
+        }
+        
+        .reservation-form-wrapper p {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .reservation-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #f5f5f5;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #d94e4e;
+            outline: none;
+            box-shadow: 0 0 15px rgba(217, 78, 78, 0.2);
+        }
+        
+        .form-group i {
+            position: absolute;
+            top: 2.5rem;
+            right: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus + i {
+            color: #d94e4e;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-btn {
+            grid-column: span 2;
+            margin-top: 1rem;
+        }
+        
+        .btn.primary {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(145deg, #d94e4e, #c13c3c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(217, 78, 78, 0.3);
+        }
+        
+        .btn.primary:hover {
+            background: linear-gradient(145deg, #e05e5e, #d14c4c);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(217, 78, 78, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .reservation-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-btn {
+                grid-column: span 1;
+            }
+        }
+        
+        /* Reservation Policies Section */
+        #reservation-policies {
+            margin-top: 3rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.8));
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #reservation-policies h2 {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-size: 2.2rem;
+            color: #f5f5f5;
+            font-family: var(--heading-font);
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        #reservation-policies h2::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #d94e4e, #f9b949);
+            border-radius: 2px;
+        }
+        
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .policy-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .policy-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(217, 78, 78, 0.05), rgba(249, 185, 73, 0.05));
+            transform: translateY(100%);
+            transition: transform 0.5s ease;
+            z-index: 0;
+        }
+        
+        .policy-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(217, 78, 78, 0.2);
+        }
+        
+        .policy-item:hover::before {
+            transform: translateY(0);
+        }
+        
+        .policy-item i {
+            font-size: 2.5rem;
+            color: #f9b949;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .policy-item:hover i {
+            transform: scale(1.2);
+            color: #d94e4e;
+        }
+        
+        .policy-item h3 {
+            font-size: 1.5rem;
+            color: #f5f5f5;
+            margin-bottom: 1rem;
+            font-family: var(--heading-font);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .policy-item p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @media (max-width: 992px) {
+            .policy-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #reservation-policies {
+                padding: 2rem 1.5rem;
+            }
+            
+            #reservation-policies h2 {
+                font-size: 1.8rem;
+                margin-bottom: 2rem;
+            }
+            
+            .policy-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .policy-item {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Page Banner */
+        .page-banner {
+            position: relative;
+            height: 300px;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/reservation-banner.jpg');
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .page-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+        
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+        
+        .banner-content h1 {
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            font-family: var(--heading-font);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .banner-content h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background-color: #d94e4e;
+        }
+        
+        .banner-content p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .page-banner {
+                height: 200px;
+            }
+            
+            .banner-content h1 {
+                font-size: 2rem;
+            }
+            
+            .banner-content p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Chaos <span>Café</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="reservation.html" class="active">Reservations</a></li>
+                <li><a href="order.html">Order Online</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+            </ul>
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <input type="text" class="search-input" placeholder="Search menu...">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="cart-icon">
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+                <span class="cart-count">3</span>
+            </div>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <div class="page-banner">
+        <div class="banner-content">
+            <h1>Make a Reservation</h1>
+            <p>Reserve your table for a memorable dining experience</p>
+        </div>
+    </div>
+
+    <section id="reservation" class="reservation-section">
+        <div class="reservation-container">
+            <div class="table-availability">
+                <h2>Reserve Your Experience</h2>
+                
+                <!-- Interactive Date Selection -->
+                <div class="availability-date">
+                    <div class="date-selection-wrapper">
+                        <label for="availability-date">Select Your Date:</label>
+                        <div class="date-picker-container">
+                            <input type="date" id="availability-date" name="availabilityDate">
+                            <div class="calendar-icon pulse-animation">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+                        <button id="check-availability-btn" class="btn primary">
+                            <i class="fas fa-magic"></i> Find Tables
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Visual Calendar with Animation -->
+                <div class="visual-calendar">
+                    <div class="month-header">
+                        <button class="month-nav prev"><i class="fas fa-chevron-left"></i></button>
+                        <span id="current-month">April 2023</span>
+                        <button class="month-nav next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="weekdays">
+                        <div data-day="0" class="weekend">Sun</div>
+                        <div data-day="1">Mon</div>
+                        <div data-day="2">Tue</div>
+                        <div data-day="3">Wed</div>
+                        <div data-day="4">Thu</div>
+                        <div data-day="5">Fri</div>
+                        <div data-day="6" class="weekend">Sat</div>
+                    </div>
+                    <div class="days" id="calendar-days">
+                        <!-- Days will be generated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Redesigned Time Slots -->
+                <div class="availability-display">
+                    <h3>Choose Your Perfect Time</h3>
+                    
+                    <div class="availability-legend">
+                        <div class="legend-item">
+                            <span class="status-indicator available"></span>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="status-indicator limited"></span>
+                            <span>Few Tables Left</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="status-indicator unavailable"></span>
+                            <span>Fully Booked</span>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slots-container">
+                        <div class="time-period">
+                            <h4>Lunch</h4>
+                            <div class="time-slots">
+                                <div class="time-slot" data-time="11:00">
+                                    <span class="time">11:00 AM</span>
+                                    <span class="status-indicator available"></span>
+                                </div>
+                                <div class="time-slot" data-time="12:00">
+                                    <span class="time">12:00 PM</span>
+                                    <span class="status-indicator available"></span>
+                                </div>
+                                <div class="time-slot" data-time="13:00">
+                                    <span class="time">1:00 PM</span>
+                                    <span class="status-indicator available"></span>
+                                </div>
+                                <div class="time-slot" data-time="14:00">
+                                    <span class="time">2:00 PM</span>
+                                    <span class="status-indicator available"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="time-period">
+                            <h4>Dinner</h4>
+                            <div class="time-slots">
+                                <div class="time-slot" data-time="17:00">
+                                    <span class="time">5:00 PM</span>
+                                    <span class="status-indicator available"></span>
+                                </div>
+                                <div class="time-slot" data-time="18:00">
+                                    <span class="time">6:00 PM</span>
+                                    <span class="status-indicator limited"></span>
+                                </div>
+                                <div class="time-slot" data-time="19:00">
+                                    <span class="time">7:00 PM</span>
+                                    <span class="status-indicator limited"></span>
+                                </div>
+                                <div class="time-slot" data-time="20:00">
+                                    <span class="time">8:00 PM</span>
+                                    <span class="status-indicator unavailable"></span>
+                                </div>
+                                <div class="time-slot" data-time="21:00">
+                                    <span class="time">9:00 PM</span>
+                                    <span class="status-indicator available"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Updated floor plan layout -->
+                <div class="floor-plan-container">
+                    <h2>Restaurant Floor Plan</h2>
+                    
+                    <!-- Area filter buttons -->
+                    <div class="area-filters">
+                        <button class="area-filter-btn active" data-area="all">All Areas</button>
+                        <button class="area-filter-btn" data-area="Window View">Window View</button>
+                        <button class="area-filter-btn" data-area="Main Dining">Main Dining</button>
+                        <button class="area-filter-btn" data-area="Private Corner">Private Corner</button>
+                    </div>
+                    <div class="floor-plan-wrapper">
+                        <div class="floor-plan-3d">
+                            <div class="scene">
+                                <!-- Restaurant Layout -->
+                                <div class="restaurant-layout">
+                                    <!-- Bar Area -->
+                                    <div class="bar">
+                                        <div class="area-marker">Bar</div>
+                                        <div class="bar-counter">
+                                            <div class="bar-surface"></div>
+                                            <div class="bar-front"></div>
+                                            <!-- Bar Stools -->
+                                            <div class="bar-seating">
+                                                <div class="bar-stool hovering">
+                                                    <div class="stool-seat"></div>
+                                                    <div class="stool-stem"></div>
+                                                    <div class="stool-base"></div>
+                                                    <div class="stool-footrest"></div>
+                                                </div>
+                                                <div class="bar-stool hovering">
+                                                    <div class="stool-seat"></div>
+                                                    <div class="stool-stem"></div>
+                                                    <div class="stool-base"></div>
+                                                    <div class="stool-footrest"></div>
+                                                </div>
+                                                <div class="bar-stool hovering">
+                                                    <div class="stool-seat"></div>
+                                                    <div class="stool-stem"></div>
+                                                    <div class="stool-base"></div>
+                                                    <div class="stool-footrest"></div>
+                                                </div>
+                                                <div class="bar-stool hovering">
+                                                    <div class="stool-seat"></div>
+                                                    <div class="stool-stem"></div>
+                                                    <div class="stool-base"></div>
+                                                    <div class="stool-footrest"></div>
+                                                </div>
+                                                <div class="bar-stool hovering">
+                                                    <div class="stool-seat"></div>
+                                                    <div class="stool-stem"></div>
+                                                    <div class="stool-base"></div>
+                                                    <div class="stool-footrest"></div>
+                                                </div>
+                                                <div class="bar-stool hovering">
+                                                    <div class="stool-seat"></div>
+                                                    <div class="stool-stem"></div>
+                                                    <div class="stool-base"></div>
+                                                    <div class="stool-footrest"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Drink Displays -->
+                                        <div class="drink-displays">
+                                            <div class="drink-display left">
+                                                <div class="shelf-unit">
+                                                    <div class="shelf"></div>
+                                                    <div class="shelf"></div>
+                                                    <div class="shelf"></div>
+                                                </div>
+                                                <div class="display-lights">
+                                                    <div class="light-beam"></div>
+                                                    <div class="light-beam"></div>
+                                                </div>
+                                            </div>
+                                            <div class="drink-display center">
+                                                <div class="shelf-unit">
+                                                    <div class="shelf"></div>
+                                                    <div class="shelf"></div>
+                                                    <div class="shelf"></div>
+                                                </div>
+                                                <div class="display-lights">
+                                                    <div class="light-beam"></div>
+                                                    <div class="light-beam"></div>
+                                                </div>
+                                            </div>
+                                            <div class="drink-display right">
+                                                <div class="shelf-unit">
+                                                    <div class="shelf"></div>
+                                                    <div class="shelf"></div>
+                                                    <div class="shelf"></div>
+                                                </div>
+                                                <div class="display-lights">
+                                                    <div class="light-beam"></div>
+                                                    <div class="light-beam"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Bartender Station -->
+                                        <div class="bartender-station">
+                                            <i class="fas fa-glass-martini-alt"></i>
+                                        </div>
+                                    </div>
+    
+                                    <!-- TV/Projection Area -->
+                                    <div class="tv-area">
+                                        <div class="area-marker">TV/Projection</div>
+                                        <div class="tv-screen">
+                                            <div class="tv-status"></div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Window View Area -->
+                                    <div class="window-area">
+                                        <div class="area-marker">Window View</div>
+                                        <!-- Window Tables -->
+                                        <div class="table-item-3d" data-table="1" data-status="available" data-area="Window View">
+                                            <div class="table-shape round" data-seats="2">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">1</span>
+                                                <span class="seat-count">2</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="2" data-status="available" data-area="Window View">
+                                            <div class="table-shape round" data-seats="2">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">2</span>
+                                                <span class="seat-count">2</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="3" data-status="available" data-area="Window View">
+                                            <div class="table-shape round" data-seats="2">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">3</span>
+                                                <span class="seat-count">2</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="13" data-status="available" data-area="Window View">
+                                            <div class="table-shape round" data-seats="2">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">4</span>
+                                                <span class="seat-count">2</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="14" data-status="available" data-area="Window View">
+                                            <div class="table-shape round" data-seats="2">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">5</span>
+                                                <span class="seat-count">2</span>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Entrance Gate -->
+                                    <div class="entrance-gate">
+                                        <div class="area-marker">Entrance Gate</div>
+                                        <div class="gate-doors">
+                                            <div class="gate-door left">
+                                                <i class="fas fa-door-open"></i>
+                                            </div>
+                                            <div class="gate-door right">
+                                                <i class="fas fa-door-open"></i>
+                                            </div>
+                                        </div>
+                                        <div class="gate-security">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <span>Security</span>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Reception Area -->
+                                    <div class="reception-area">
+                                        <div class="area-marker">Reception</div>
+                                        <div class="reception-desk">
+                                            <div class="desk-counter"></div>
+                                            <div class="reception-staff">
+                                                <i class="fas fa-concierge-bell"></i>
+                                            </div>
+                                            <div class="desk-computer">
+                                                <i class="fas fa-desktop"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Main Dining Area -->
+                                    <div class="main-area">
+                                        <div class="area-marker">Main Dining</div>
+                                        <!-- Main Area Tables -->
+                                        <div class="table-item-3d" data-table="4" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular" data-seats="4">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">6</span>
+                                                <span class="seat-count">4</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="5" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular" data-seats="4">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">7</span>
+                                                <span class="seat-count">4</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="6" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular" data-seats="4">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">8</span>
+                                                <span class="seat-count">4</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="7" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular" data-seats="4">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">9</span>
+                                                <span class="seat-count">4</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="8" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular" data-seats="4">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">10</span>
+                                                <span class="seat-count">4</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="9" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular" data-seats="4">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">11</span>
+                                                <span class="seat-count">4</span>
+                                            </div>
+                                        </div>
+                                        <!-- New 8-seater tables -->
+                                        <div class="table-item-3d" data-table="15" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular large" data-seats="8">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                                <div class="chair chair-5"></div>
+                                                <div class="chair chair-6"></div>
+                                                <div class="chair chair-7"></div>
+                                                <div class="chair chair-8"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">15</span>
+                                                <span class="seat-count">8</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="16" data-status="available" data-area="Main Dining">
+                                            <div class="table-shape rectangular large" data-seats="8">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                                <div class="chair chair-4"></div>
+                                                <div class="chair chair-5"></div>
+                                                <div class="chair chair-6"></div>
+                                                <div class="chair chair-7"></div>
+                                                <div class="chair chair-8"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">16</span>
+                                                <span class="seat-count">8</span>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Private Corner -->
+                                    <div class="private-area">
+                                        <div class="area-marker">Private Corner</div>
+                                        <!-- Private Area Tables -->
+                                        <div class="table-item-3d" data-table="10" data-status="available" data-area="Private Corner">
+                                            <div class="table-shape round" data-seats="3">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">12</span>
+                                                <span class="seat-count">3</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="11" data-status="available" data-area="Private Corner">
+                                            <div class="table-shape round" data-seats="3">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">13</span>
+                                                <span class="seat-count">3</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-item-3d" data-table="12" data-status="available" data-area="Private Corner">
+                                            <div class="table-shape round" data-seats="3">
+                                                <div class="chair chair-1"></div>
+                                                <div class="chair chair-2"></div>
+                                                <div class="chair chair-3"></div>
+                                            </div>
+                                            <div class="table-info">
+                                                <span class="table-number">14</span>
+                                                <span class="seat-count">3</span>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Kitchen Area -->
+                                    <div class="kitchen-area">
+                                        <div class="area-marker">Kitchen</div>
+                                        <div class="kitchen-counter"></div>
+                                        <div class="kitchen-stations">
+                                            <div class="cooking-station">
+                                                <i class="fas fa-fire"></i>
+                                            </div>
+                                            <div class="prep-station">
+                                                <i class="fas fa-utensils"></i>
+                                            </div>
+                                            <div class="dish-station">
+                                                <i class="fas fa-concierge-bell"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selection Feedback -->
+                    <div id="selection-feedback" class="hidden">
+                        <p id="selection-text"></p>
+                    </div>
+                </div>
+                
+                <form id="reservationForm" class="reservation-form">
+                    <div class="form-header">
+                        <h3>Reserve Your Table</h3>
+                        <p>Fill in your details to complete the reservation</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <div class="input-with-icon phone-input">
+                            <input type="tel" id="phone" name="phone" required pattern="[0-9]+" title="Please enter numbers only" placeholder="Enter your phone number (digits only)" inputmode="numeric">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <div class="input-with-icon">
+                            <input type="date" id="date" name="date" required>
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Time</label>
+                        <div class="input-with-icon">
+                            <input type="time" id="time" name="time" required>
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="partySize">Number of Guests</label>
+                        <div class="input-with-icon">
+                            <input type="number" id="partySize" name="partySize" min="1" max="10" value="2" required>
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <small>For parties larger than 10, please call us directly.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">Seating Preference</label>
+                        <select id="location" name="location">
+                            <option value="">No Preference</option>
+                            <option value="indoor">Indoor</option>
+                            <option value="outdoor">Outdoor</option>
+                            <option value="private">Private Section</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tablePreference">Table Preference</label>
+                        <select id="tablePreference" name="tablePreference">
+                            <option value="">No Preference</option>
+                            <option value="window">Window Seat</option>
+                            <option value="corner">Corner Table</option>
+                            <option value="bar">Near Bar</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="specialRequests">Special Requests</label>
+                        <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="Any special requests or dietary requirements?"></textarea>
+                    </div>
+                    <button type="submit" class="btn primary"><i class="fas fa-check-circle"></i> Reserve Table</button>
+                </form>
+
+                <!-- After the reservation form -->
+                <div class="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+
+                <div id="notificationContainer"></div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="reservation-policies">
+        <div class="container">
+            <h2>Reservation Policies</h2>
+            <div class="policy-grid">
+                <div class="policy-item">
+                    <i class="fas fa-clock"></i>
+                    <h3>Cancellation Policy</h3>
+                    <p>Please notify us at least 6 hours in advance for cancellations. Late cancellations may incur a fee.</p>
+                </div>
+                <div class="policy-item">
+                    <i class="fas fa-user-clock"></i>
+                    <h3>Late Arrival</h3>
+                    <p>Tables will be held for 15 minutes after the reservation time. Please call if you're running late.</p>
+                </div>
+                <div class="policy-item">
+                    <i class="fas fa-users"></i>
+                    <h3>Large Groups</h3>
+                    <p>For parties of more than 10 people, please contact us directly to arrange special accommodations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4 id="footer-title">Café Delight</h4>
+                <p>123 Cafe Street</p>
+                <p>City, State 12345</p>
+                <p>Phone: (555) 123-4567</p>
+            </div>
+            <div class="footer-section">
+                <h4>Hours</h4>
+                <div id="cafe-hours">
+                    <p>Monday - Friday: 7am - 8pm</p>
+                    <p>Saturday - Sunday: 8am - 9pm</p>
+                </div>
+                <div id="restaurant-hours" style="display: none;">
+                    <p>Monday - Friday: 11am - 10pm</p>
+                    <p>Saturday - Sunday: 10am - 11pm</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Newsletter</h4>
+                <p>Subscribe to get special offers and event updates</p>
+                <form class="footer-subscribe">
+                    <div class="subscribe-container">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Café & Restaurant Delight. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Accessibility</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Floor Plan Interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Table selection
+            const tables = document.querySelectorAll('.table-item-3d');
+            const selectionFeedback = document.getElementById('selection-feedback');
+            const selectionText = document.getElementById('selection-text');
+            const tablePreferenceSelect = document.getElementById('tablePreference');
+            
+            // Store selected table
+            let selectedTable = null;
+            
+            // Add event listeners to tables
+            tables.forEach(table => {
+                table.addEventListener('click', function() {
+                    // Remove selection from previously selected table
+                    if (selectedTable) {
+                        selectedTable.classList.remove('selected');
+                    }
+                    
+                    // Toggle selection on the clicked table
+                    if (selectedTable === this) {
+                        selectedTable = null;
+                        selectionFeedback.classList.add('hidden');
+                    } else {
+                        this.classList.add('selected');
+                        selectedTable = this;
+                        
+                        // Display selection feedback
+                        const tableNumber = this.querySelector('.table-number').textContent;
+                        const seatCount = this.querySelector('.seat-count').textContent;
+                        const area = this.getAttribute('data-area');
+                        
+                        selectionText.innerHTML = `<strong>Table ${tableNumber}</strong> selected - ${seatCount} seats in the ${area} area`;
+                        selectionFeedback.classList.remove('hidden');
+                        
+                        // Update form selection based on area
+                        if (area === 'Window View') {
+                            tablePreferenceSelect.value = 'window';
+                        } else if (area === 'Private Corner') {
+                            tablePreferenceSelect.value = 'corner';
+                        } else if (area === 'Main Dining') {
+                            tablePreferenceSelect.value = '';
+                        }
+                    }
+                });
+                
+                // Add hover effects for tables with mouse events
+                table.addEventListener('mouseenter', function() {
+                    if (this !== selectedTable) {
+                        // Add any additional hover effects here if needed
+                    }
+                });
+                
+                table.addEventListener('mouseleave', function() {
+                    if (this !== selectedTable) {
+                        // Reset any additional hover effects here if needed
+                    }
+                });
+            });
+            
+            // Area filtering functionality
+            const areaFilterBtns = document.querySelectorAll('.area-filter-btn');
+            
+            areaFilterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active button
+                    areaFilterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const selectedArea = this.getAttribute('data-area');
+                    
+                    // Filter tables based on area
+                    tables.forEach(table => {
+                        const tableArea = table.getAttribute('data-area');
+                        
+                        if (selectedArea === 'all' || tableArea === selectedArea) {
+                            table.style.opacity = '1';
+                            table.style.pointerEvents = 'auto';
+                        } else {
+                            table.style.opacity = '0.3';
+                            table.style.pointerEvents = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Floor plan controls
+            const rotateLeft = document.getElementById('rotate-left');
+            const rotateRight = document.getElementById('rotate-right');
+            const zoomIn = document.getElementById('zoom-in');
+            const zoomOut = document.getElementById('zoom-out');
+            const resetView = document.getElementById('reset-view');
+            const floorPlanScene = document.querySelector('.scene');
+            
+            let rotation = 0;
+            let scale = 1;
+            
+            rotateLeft.addEventListener('click', function() {
+                rotation -= 15;
+                updateFloorPlanTransform();
+            });
+            
+            rotateRight.addEventListener('click', function() {
+                rotation += 15;
+                updateFloorPlanTransform();
+            });
+            
+            zoomIn.addEventListener('click', function() {
+                scale += 0.1;
+                if (scale > 1.5) scale = 1.5;
+                updateFloorPlanTransform();
+            });
+            
+            zoomOut.addEventListener('click', function() {
+                scale -= 0.1;
+                if (scale < 0.5) scale = 0.5;
+                updateFloorPlanTransform();
+            });
+            
+            resetView.addEventListener('click', function() {
+                rotation = 0;
+                scale = 1;
+                updateFloorPlanTransform();
+            });
+            
+            function updateFloorPlanTransform() {
+                floorPlanScene.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+            }
+        });
+        
+        // Calendar and Date Picker Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get calendar elements
+            const currentMonthElement = document.getElementById('current-month');
+            const calendarDays = document.getElementById('calendar-days');
+            const prevMonthBtn = document.querySelector('.month-nav.prev');
+            const nextMonthBtn = document.querySelector('.month-nav.next');
+            const dateInput = document.getElementById('availability-date');
+            const timeSlots = document.querySelectorAll('.time-slot');
+            
+            // Initialize date variables
+            let today = new Date();
+            let currentMonth = today.getMonth();
+            let currentYear = today.getFullYear();
+            
+            // Set min date for date input
+            let minDate = new Date();
+            let minDateString = formatDateForInput(minDate);
+            dateInput.setAttribute('min', minDateString);
+            
+            // Set max date (3 months from today) for date input
+            let maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 3);
+            let maxDateString = formatDateForInput(maxDate);
+            dateInput.setAttribute('max', maxDateString);
+            
+            // Set default date to today
+            dateInput.value = minDateString;
+            
+            // Format date for input field (YYYY-MM-DD)
+            function formatDateForInput(date) {
+                let month = date.getMonth() + 1;
+                let day = date.getDate();
+                return `${date.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+            }
+            
+            // Initialize calendar
+            generateCalendar(currentMonth, currentYear);
+            
+            // Event listener for previous month button
+            prevMonthBtn.addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                generateCalendar(currentMonth, currentYear);
+            });
+            
+            // Event listener for next month button
+            nextMonthBtn.addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                generateCalendar(currentMonth, currentYear);
+            });
+            
+            // Event listener for date input
+            dateInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                currentMonth = selectedDate.getMonth();
+                currentYear = selectedDate.getFullYear();
+                generateCalendar(currentMonth, currentYear);
+                
+                // Highlight the selected date in the visual calendar
+                highlightSelectedDate();
+            });
+            
+            // Event listener for check availability button
+            document.getElementById('check-availability-btn').addEventListener('click', function() {
+                const selectedDate = new Date(dateInput.value);
+                
+                // Random availability simulation
+                timeSlots.forEach(slot => {
+                    const random = Math.random();
+                    if (random < 0.6) {
+                        slot.querySelector('.status-indicator').className = 'status-indicator available';
+                    } else if (random < 0.8) {
+                        slot.querySelector('.status-indicator').className = 'status-indicator limited';
+                    } else {
+                        slot.querySelector('.status-indicator').className = 'status-indicator unavailable';
+                    }
+                });
+                
+                // Scroll to time slots
+                document.querySelector('.availability-display').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+            
+            // Event delegation for time slot selection
+            document.querySelector('.time-slots-container').addEventListener('click', function(e) {
+                const timeSlot = e.target.closest('.time-slot');
+                if (!timeSlot) return;
+                
+                // Check if the slot is available
+                const status = timeSlot.querySelector('.status-indicator').classList;
+                if (status.contains('unavailable')) return;
+                
+                // Remove selection from all slots
+                document.querySelectorAll('.time-slot').forEach(slot => {
+                    slot.classList.remove('selected');
+                });
+                
+                // Add selection to clicked slot
+                timeSlot.classList.add('selected');
+                
+                // Update the time input in the reservation form
+                const timeValue = timeSlot.getAttribute('data-time');
+                document.getElementById('time').value = timeValue;
+                
+                // Scroll to floor plan
+                document.querySelector('.floor-plan-container').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+            
+            // Generate calendar for a specific month
+            function generateCalendar(month, year) {
+                // Clear previous calendar
+                calendarDays.innerHTML = '';
+                
+                // Update current month display
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                                   "July", "August", "September", "October", "November", "December"];
+                currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+                
+                // Get first day of month
+                const firstDay = new Date(year, month, 1).getDay();
+                
+                // Get last day of month
+                const lastDay = new Date(year, month + 1, 0).getDate();
+                
+                // Get last day of previous month
+                const prevMonthLastDay = new Date(year, month, 0).getDate();
+                
+                // Get current date
+                const now = new Date();
+                const todayDate = now.getDate();
+                const todayMonth = now.getMonth();
+                const todayYear = now.getFullYear();
+                
+                // Calculate days from previous month
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.textContent = prevMonthLastDay - i;
+                    dayDiv.classList.add('other-month');
+                    
+                    // Add previous month
+                    if (month === 0) {
+                        dayDiv.setAttribute('data-date', `${year-1}-12-${prevMonthLastDay - i}`);
+                    } else {
+                        dayDiv.setAttribute('data-date', `${year}-${month < 10 ? '0' + month : month}-${prevMonthLastDay - i < 10 ? '0' + (prevMonthLastDay - i) : prevMonthLastDay - i}`);
+                    }
+                    
+                    calendarDays.appendChild(dayDiv);
+                }
+                
+                // Generate days of current month
+                for (let i = 1; i <= lastDay; i++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.textContent = i;
+                    
+                    // Format the date for the data attribute
+                    const formattedMonth = month + 1;
+                    dayDiv.setAttribute('data-date', `${year}-${formattedMonth < 10 ? '0' + formattedMonth : formattedMonth}-${i < 10 ? '0' + i : i}`);
+                    
+                    // Add class for today
+                    if (i === todayDate && month === todayMonth && year === todayYear) {
+                        dayDiv.classList.add('today');
+                    }
+                    
+                    // Random availability for demo
+                    const random = Math.random();
+                    if (random < 0.6) {
+                        dayDiv.classList.add('available');
+                    } else if (random < 0.8) {
+                        dayDiv.classList.add('limited');
+                    } else {
+                        dayDiv.classList.add('unavailable');
+                    }
+                    
+                    // Add event listener to day
+                    dayDiv.addEventListener('click', function() {
+                        // Only allow selecting days in the future
+                        const selectedDate = new Date(this.getAttribute('data-date'));
+                        if (selectedDate < new Date().setHours(0, 0, 0, 0)) return;
+                        
+                        // Remove active class from all days
+                        document.querySelectorAll('.days div').forEach(day => {
+                            day.classList.remove('active');
+                        });
+                        
+                        // Add active class to selected day
+                        this.classList.add('active');
+                        
+                        // Update date input
+                        dateInput.value = this.getAttribute('data-date');
+                        
+                        // Trigger change event for the date input
+                        const event = new Event('change');
+                        dateInput.dispatchEvent(event);
+                    });
+                    
+                    calendarDays.appendChild(dayDiv);
+                }
+                
+                // Fill remaining days of the grid with days from next month
+                const totalDays = document.querySelectorAll('.days div').length;
+                const remainingDays = 42 - totalDays; // 6 rows × 7 columns = 42 cells
+                
+                for (let i = 1; i <= remainingDays; i++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.textContent = i;
+                    dayDiv.classList.add('other-month');
+                    
+                    // Add next month
+                    if (month === 11) {
+                        dayDiv.setAttribute('data-date', `${year+1}-01-${i < 10 ? '0' + i : i}`);
+                    } else {
+                        const nextMonth = month + 2; // +2 because months are 0-indexed
+                        dayDiv.setAttribute('data-date', `${year}-${nextMonth < 10 ? '0' + nextMonth : nextMonth}-${i < 10 ? '0' + i : i}`);
+                    }
+                    
+                    calendarDays.appendChild(dayDiv);
+                }
+                
+                // Highlight selected date if it exists in the current month view
+                highlightSelectedDate();
+            }
+            
+            // Highlight the selected date in the calendar
+            function highlightSelectedDate() {
+                if (!dateInput.value) return;
+                
+                const selectedDate = dateInput.value;
+                const days = document.querySelectorAll('.days div');
+                
+                // Remove active class from all days
+                days.forEach(day => {
+                    day.classList.remove('active');
+                });
+                
+                // Add active class to the selected day
+                days.forEach(day => {
+                    if (day.getAttribute('data-date') === selectedDate) {
+                        day.classList.add('active');
+                    }
+                });
+            }
+            
+            // Time slot selection functionality
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    // Check if slot is unavailable
+                    if (this.querySelector('.status-indicator').classList.contains('unavailable')) {
+                        return;
+                    }
+                    
+                    // Clear all selected slots
+                    timeSlots.forEach(s => s.classList.remove('selected'));
+                    
+                    // Select this slot
+                    this.classList.add('selected');
+                    
+                    // Update time in form
+                    const selectedTime = this.getAttribute('data-time');
+                    if (document.getElementById('time')) {
+                        document.getElementById('time').value = selectedTime;
+                    }
+                });
+            });
+            
+            // Form Submission
+            const reservationForm = document.getElementById('reservationForm');
+            if (reservationForm) {
+                reservationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Basic validation
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const phone = document.getElementById('phone').value;
+                    const date = document.getElementById('date').value;
+                    const time = document.getElementById('time').value;
+                    const guests = document.getElementById('guests').value;
+                    
+                    if (!name || !email || !phone || !date || !time || !guests) {
+                        alert('Please fill in all required fields');
+                        return;
+                    }
+                    
+                    // Simulate form submission
+                    this.querySelector('button[type="submit"]').textContent = 'Processing...';
+                    
+                    // Simulate API call with timeout
+                    setTimeout(() => {
+                        // Success feedback
+                        alert('Reservation successful! A confirmation has been sent to your email.');
+                        
+                        // Reset form
+                        this.reset();
+                        this.querySelector('button[type="submit"]').textContent = 'Confirm Reservation';
+                        
+                        // Scroll to top
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

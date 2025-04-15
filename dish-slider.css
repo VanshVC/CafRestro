@@ -72,6 +72,9 @@
     transform-style: preserve-3d !important;
     display: block !important;
     visibility: visible !important;
+    will-change: transform, opacity !important;
+    margin: 0 10px !important;
+    perspective: 1000px !important;
 }
 
 #dish-slider .slider-item.active {
@@ -79,6 +82,7 @@
     transform: translateY(0) scale(1) rotateX(0) !important;
     pointer-events: auto !important;
     z-index: 2 !important;
+    animation: float 3s ease-in-out infinite alternate;
 }
 
 #dish-slider .slider-item.prev {
@@ -109,8 +113,9 @@
 }
 
 #dish-slider .slider-item:hover .slider-content {
-    transform: translateZ(50px) rotateX(-5deg);
-    box-shadow: 0 30px 60px rgba(0, 255, 157, 0.3);
+    transform: translateZ(50px) rotateX(-5deg) scale(1.05);
+    box-shadow: 0 30px 60px rgba(200, 169, 126, 0.4);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 #dish-slider .slider-image {
@@ -267,19 +272,158 @@
 }
 
 @keyframes float {
-    0%, 100% {
-        transform: translateY(0) translateZ(30px);
+    0% {
+        transform: translateY(0) scale(1) rotateX(0);
     }
-    50% {
-        transform: translateY(-10px) translateZ(40px);
+    100% {
+        transform: translateY(-10px) scale(1.01) rotateX(-2deg);
     }
 }
 
 #dish-slider .slider-item.active .slider-content {
-    animation: float 3s ease-in-out infinite;
+    animation: float 3s ease-in-out infinite alternate;
 }
 
-/* Responsive adjustments for slider */
+/* Slider Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes floatAnimation {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced Slider Styles */
+.seasonal-slider {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.seasonal-slider::-webkit-scrollbar {
+    display: none;
+}
+
+.seasonal-card {
+    animation: scaleIn 0.5s ease;
+    transition: all 0.3s ease;
+}
+
+.seasonal-card:hover {
+    transform: translateY(-10px) scale(1.02);
+}
+
+.seasonal-badge {
+    animation: fadeIn 0.5s ease 0.2s backwards;
+}
+
+.card-content {
+    animation: slideIn 0.5s ease 0.3s backwards;
+}
+
+.banner-slide {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.banner-content h3,
+.banner-content p {
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards;
+}
+
+.banner-content h3 {
+    animation-delay: 0.3s;
+}
+
+.banner-content p {
+    animation-delay: 0.5s;
+}
+
+.banner-btn {
+    opacity: 0;
+    animation: fadeIn 0.8s ease 0.7s forwards;
+}
+
+.nav-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Hover Effects */
+.seasonal-card .card-image img {
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.seasonal-card:hover .card-image img {
+    transform: scale(1.1);
+}
+
+.dot {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dot.active {
+    transform: scale(1.2);
+}
+
+/* Floating Animation for Seasonal Items */
+.seasonal-card[data-season="spring"]:hover {
+    animation: floatAnimation 3s ease-in-out infinite;
+}
+
+.seasonal-card[data-season="summer"]:hover {
+    animation: floatAnimation 3.2s ease-in-out infinite;
+}
+
+.seasonal-card[data-season="autumn"]:hover {
+    animation: floatAnimation 3.4s ease-in-out infinite;
+}
+
+.seasonal-card[data-season="winter"]:hover {
+    animation: floatAnimation 3.6s ease-in-out infinite;
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
     #dish-slider .slider-container {
         height: 500px;
@@ -306,4 +450,33 @@
         height: 40px;
         font-size: 1rem;
     }
-} 
+
+    .seasonal-card {
+        flex: 0 0 280px;
+    }
+    
+    .banner-content h3 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .seasonal-card {
+        flex: 0 0 260px;
+    }
+    
+    .banner-content h3 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+    .seasonal-card:hover {
+        transform: none;
+    }
+    
+    .seasonal-card[data-season]:hover {
+        animation: none;
+    }
+}

@@ -1,0 +1,3297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu | Café Delight</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="elegant-theme.css">
+    <link rel="stylesheet" href="dish-slider.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="menu.css">
+    <!-- Proper slider initialization scripts -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize all interactions on the page
+            initAllButtonsAndFeatures();
+            
+            function initAllButtonsAndFeatures() {
+                // Initialize featured slider
+                initFeaturedSlider();
+                
+                // Initialize all menu sliders
+                initMenuSliders();
+                
+                // Initialize all buttons across the page
+                initializeAllButtons();
+                
+                // Setup global click handlers for dynamically added elements
+                setupEventDelegation();
+                
+                // Initialize cart modal functionality
+                initCartModal();
+            }
+            
+            // Featured Slider Initialization
+            function initFeaturedSlider() {
+                const featuredSlider = document.querySelector('.featured-slider');
+                if (!featuredSlider) return;
+                
+                const sliderContainer = featuredSlider.querySelector('.slider-container');
+                const sliderItems = featuredSlider.querySelectorAll('.slider-item');
+                const prevBtn = featuredSlider.querySelector('.slider-prev');
+                const nextBtn = featuredSlider.querySelector('.slider-next');
+                const dotsContainer = featuredSlider.querySelector('.pagination-dots');
+                
+                if (!sliderContainer || !sliderItems.length) return;
+                
+                // Set initial state
+                let currentIndex = 0;
+                let autoplayInterval;
+                let visibleItems = getVisibleFeaturedItemCount();
+                
+                // Set initial widths and positions
+                updateItemWidths();
+                
+                // Add event listeners for navigation
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function() {
+                        stopAutoplay();
+                        navigate('prev');
+                    });
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function() {
+                        stopAutoplay();
+                        navigate('next');
+                    });
+                }
+                
+                // Create and add pagination dots if needed
+                if (dotsContainer) {
+                    createPaginationDots();
+                }
+                
+                // Add touch swipe functionality
+                let touchStartX = 0;
+                let touchEndX = 0;
+                
+                sliderContainer.addEventListener('touchstart', function(e) {
+                    touchStartX = e.changedTouches[0].screenX;
+                    stopAutoplay();
+                }, { passive: true });
+                
+                sliderContainer.addEventListener('touchend', function(e) {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, { passive: true });
+                
+                function handleSwipe() {
+                    const swipeThreshold = 50;
+                    if (touchEndX < touchStartX - swipeThreshold) {
+                        // Swipe left, go to next
+                        navigate('next');
+                    } else if (touchEndX > touchStartX + swipeThreshold) {
+                        // Swipe right, go to prev
+                        navigate('prev');
+                    }
+                }
+                
+                // Navigation functions
+                function navigate(direction) {
+                    visibleItems = getVisibleFeaturedItemCount();
+                    
+                    if (direction === 'next') {
+                        currentIndex++;
+                        if (currentIndex > sliderItems.length - visibleItems) {
+                            currentIndex = 0; // Loop back to first slide
+                        }
+                    } else if (direction === 'prev') {
+                        currentIndex--;
+                        if (currentIndex < 0) {
+                            currentIndex = sliderItems.length - visibleItems; // Loop to last set of slides
+                        }
+                    }
+                    
+                    updateSliderPosition();
+                    updateDots(Math.floor(currentIndex / visibleItems));
+                }
+                
+                function updateSliderPosition() {
+                    const itemWidth = 100 / visibleItems;
+                    const translateValue = -(currentIndex * itemWidth);
+                    sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                    sliderContainer.style.transform = `translateX(${translateValue}%)`;
+                }
+                
+                function updateDots(activeIndex) {
+                    if (!dotsContainer) return;
+                    
+                    const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === activeIndex);
+                    });
+                }
+                
+                function createPaginationDots() {
+                    dotsContainer.innerHTML = '';
+                    const pageCount = Math.ceil(sliderItems.length / visibleItems);
+                    
+                    for (let i = 0; i < pageCount; i++) {
+                        const dot = document.createElement('span');
+                        dot.classList.add('pagination-dot');
+                        if (i === 0) dot.classList.add('active');
+                        
+                        dot.addEventListener('click', function() {
+                            stopAutoplay();
+                            goToPage(i);
+                        });
+                        
+                        dotsContainer.appendChild(dot);
+                    }
+                }
+                
+                function goToPage(pageIndex) {
+                    visibleItems = getVisibleFeaturedItemCount();
+                    currentIndex = pageIndex * visibleItems;
+                    
+                    if (currentIndex > sliderItems.length - visibleItems) {
+                        currentIndex = sliderItems.length - visibleItems;
+                    }
+                    
+                    updateSliderPosition();
+                    updateDots(pageIndex);
+                }
+                
+                function updateItemWidths() {
+                    visibleItems = getVisibleFeaturedItemCount();
+                    const itemWidth = 100 / visibleItems;
+                    
+                    sliderItems.forEach(item => {
+                        item.style.width = `${itemWidth}%`;
+                    });
+                    
+                    // Reset position
+                    currentIndex = 0;
+                    sliderContainer.style.transform = 'translateX(0)';
+                    
+                    // Update dots
+                    if (dotsContainer) {
+                        createPaginationDots();
+                    }
+                }
+                
+                // Start autoplay
+                function startAutoplay() {
+                    autoplayInterval = setInterval(() => {
+                        navigate('next');
+                    }, 5000); // Change slide every 5 seconds
+                }
+                
+                function stopAutoplay() {
+                    if (autoplayInterval) {
+                        clearInterval(autoplayInterval);
+                    }
+                }
+                
+                // Calculate visible items based on screen width
+                function getVisibleFeaturedItemCount() {
+                    let count = 3; // Default for large screens
+                    
+                    if (window.innerWidth < 1200) count = 2;
+                    if (window.innerWidth < 768) count = 1;
+                    
+                    return count;
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    stopAutoplay();
+                    updateItemWidths();
+                    startAutoplay();
+                });
+                
+                // Start autoplay
+                startAutoplay();
+                
+                // Pause autoplay when hovering over slider
+                featuredSlider.addEventListener('mouseenter', stopAutoplay);
+                featuredSlider.addEventListener('mouseleave', startAutoplay);
+            }
+            
+            // Initialize all menu sliders
+            function initMenuSliders() {
+                const menuSliders = document.querySelectorAll('.menu-slider');
+                
+                menuSliders.forEach(slider => {
+                    const sliderContainer = slider.querySelector('.slider-container');
+                    const sliderItems = slider.querySelectorAll('.slider-item');
+                    const prevBtn = slider.querySelector('.slider-prev');
+                    const nextBtn = slider.querySelector('.slider-next');
+                    const dotsContainer = slider.closest('.menu-category').querySelector('.pagination-dots');
+                    
+                    if (!sliderContainer || !sliderItems.length) return;
+                    
+                    // Set initial state
+                    let currentIndex = 0;
+                    let visibleItems = getVisibleItemCount(slider);
+                    
+                    // Set initial widths and positions
+                    updateItemWidths();
+                    
+                    // Add event listeners for navigation
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function() {
+                            navigate('prev');
+                        });
+                    }
+                    
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function() {
+                            navigate('next');
+                        });
+                    }
+                    
+                    // Add event listeners for pagination dots
+                    if (dotsContainer) {
+                        const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                        dots.forEach((dot, index) => {
+                            dot.addEventListener('click', function() {
+                                goToPage(index);
+                            });
+                        });
+                    }
+                    
+                    // Add touch swipe functionality
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+                    
+                    sliderContainer.addEventListener('touchstart', function(e) {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, { passive: true });
+                    
+                    sliderContainer.addEventListener('touchend', function(e) {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                    }, { passive: true });
+                    
+                    function handleSwipe() {
+                        const swipeThreshold = 50;
+                        if (touchEndX < touchStartX - swipeThreshold) {
+                            // Swipe left, go to next
+                            navigate('next');
+                        } else if (touchEndX > touchStartX + swipeThreshold) {
+                            // Swipe right, go to prev
+                            navigate('prev');
+                        }
+                    }
+                    
+                    // Navigation functions
+                    function navigate(direction) {
+                        visibleItems = getVisibleItemCount(slider);
+                        
+                        if (direction === 'next') {
+                            currentIndex++;
+                            if (currentIndex > sliderItems.length - visibleItems) {
+                                currentIndex = 0; // Loop back to first slide
+                            }
+                        } else if (direction === 'prev') {
+                            currentIndex--;
+                            if (currentIndex < 0) {
+                                currentIndex = sliderItems.length - visibleItems; // Loop to last set of slides
+                            }
+                        }
+                        
+                        updateSliderPosition();
+                        updateDots(Math.floor(currentIndex / visibleItems));
+                    }
+                    
+                    function goToPage(pageIndex) {
+                        visibleItems = getVisibleItemCount(slider);
+                        currentIndex = pageIndex * visibleItems;
+                        
+                        if (currentIndex > sliderItems.length - visibleItems) {
+                            currentIndex = sliderItems.length - visibleItems;
+                        }
+                        
+                        updateSliderPosition();
+                        updateDots(pageIndex);
+                    }
+                    
+                    function updateSliderPosition() {
+                        const itemWidth = 100 / visibleItems;
+                        const translateValue = -(currentIndex * itemWidth);
+                        sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                        sliderContainer.style.transform = `translateX(${translateValue}%)`;
+                    }
+                    
+                    function updateDots(activeIndex) {
+                        if (!dotsContainer) return;
+                        
+                        const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                        dots.forEach((dot, index) => {
+                            dot.classList.toggle('active', index === activeIndex);
+                        });
+                    }
+                    
+                    function updateItemWidths() {
+                        visibleItems = getVisibleItemCount(slider);
+                        const itemWidth = 100 / visibleItems;
+                        
+                        sliderItems.forEach(item => {
+                            item.style.width = `${itemWidth}%`;
+                        });
+                        
+                        // Reset position
+                        currentIndex = 0;
+                        sliderContainer.style.transform = 'translateX(0)';
+                        
+                        // Update dots
+                        if (dotsContainer) {
+                            const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                            dots.forEach((dot, index) => {
+                                dot.classList.toggle('active', index === 0);
+                            });
+                        }
+                    }
+                    
+                    
+                    // Calculate visible items based on screen width
+                    function getVisibleItemCount(slider) {
+                        const view = slider.getAttribute('data-view') || 'grid';
+                        let count = view === 'grid' ? 4 : 1;
+                        
+                        if (view === 'grid') {
+                            if (window.innerWidth < 1200) count = 3;
+                            if (window.innerWidth < 768) count = 2;
+                            if (window.innerWidth < 576) count = 1;
+                        }
+                        
+                        return count;
+                    }
+                    
+                    // Handle window resize
+                    window.addEventListener('resize', function() {
+                        updateItemWidths();
+                    });
+                });
+            }
+            
+            // Helper function for initializing all buttons
+            function initializeAllButtons() {
+                // Initialize all Order buttons
+                const allOrderButtons = document.querySelectorAll('.order-btn');
+                allOrderButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        handleOrderButton(this);
+                    });
+                });
+                
+                // Initialize all Favorite buttons
+                const allFavoriteButtons = document.querySelectorAll('.favorite-btn');
+                allFavoriteButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleFavorite(this);
+                    });
+                });
+                
+                // Initialize category filters
+                const categoryFilters = document.querySelectorAll('.category-filter');
+                categoryFilters.forEach(filter => {
+                    filter.addEventListener('click', function() {
+                        const category = this.getAttribute('data-category');
+                        const parent = this.closest('.category-filters');
+                        
+                        // Remove active class from all category filters
+                        parent.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+                        
+                        // Add active class to clicked filter
+                        this.classList.add('active');
+                        
+                        // Filter menu items
+                        filterMenuItems(category);
+                    });
+                });
+                
+                // Show notification helper
+                function showNotification(message) {
+                    const notification = document.createElement('div');
+                    notification.className = 'notification';
+                    notification.innerHTML = `
+                        <div class="notification-content">
+                            <i class="fas fa-check-circle"></i>
+                            <span>${message}</span>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(notification);
+                    
+                    // Force reflow
+                    notification.offsetHeight;
+                    
+                    // Add visible class
+                    notification.classList.add('visible');
+                    
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        notification.classList.remove('visible');
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, 3000);
+                }
+                
+                // Handle order button click
+                function handleOrderButton(btn) {
+                    // Get item information
+                    const itemCard = btn.closest('.item-card') || btn.closest('.slider-item');
+                    if (!itemCard) return;
+                    
+                    const itemName = itemCard.querySelector('.item-title, h3')?.textContent || 'Item';
+                    
+                    // Show notification
+                    showNotification(`"${itemName}" added to cart!`);
+                    
+                    // Update cart count
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount) {
+                        let count = parseInt(cartCount.textContent || '0');
+                        cartCount.textContent = count + 1;
+                        
+                        // Animate cart icon
+                        const cartIcon = document.querySelector('.cart-icon');
+                        if (cartIcon) {
+                            cartIcon.classList.add('pulse');
+                            setTimeout(() => {
+                                cartIcon.classList.remove('pulse');
+                            }, 1000);
+                        }
+                    }
+                }
+                
+                // Toggle favorite status
+                function toggleFavorite(btn) {
+                    // Toggle active class
+                    btn.classList.toggle('active');
+                    
+                    // Toggle icon
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        if (btn.classList.contains('active')) {
+                            icon.className = 'fas fa-heart';
+                            showNotification('Added to favorites!');
+                        } else {
+                            icon.className = 'far fa-heart';
+                            showNotification('Removed from favorites');
+                        }
+                    }
+                }
+            }
+            
+            // Add notification styles if not already present
+            if (!document.getElementById('notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    .notification {
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        background: rgba(0, 0, 0, 0.8);
+                        color: white;
+                        padding: 12px 20px;
+                        border-radius: 4px;
+                        transform: translateY(100px);
+                        opacity: 0;
+                        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+                        z-index: 1000;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                        border-left: 4px solid #f9b949;
+                    }
+                    
+                    .notification.visible {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                    
+                    .notification-content {
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+                    .notification-content i {
+                        margin-right: 10px;
+                        color: #f9b949;
+                    }
+                    
+                    .cart-icon.pulse {
+                        animation: cartPulse 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+                    }
+                    
+                    @keyframes cartPulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.2); }
+                        100% { transform: scale(1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Setup event delegation for dynamic elements
+            function setupEventDelegation() {
+                // Handle document-wide clicks
+                document.addEventListener('click', function(e) {
+                    // Handle cart icon clicks
+                    if (e.target.closest('.cart-icon')) {
+                        const cartModal = document.getElementById('cart-modal');
+                        if (cartModal) {
+                            e.preventDefault();
+                            cartModal.style.display = 'block';
+                            document.body.style.overflow = 'hidden'; // Prevent scrolling
+                        }
+                    }
+                    
+                    // Handle close modal button clicks
+                    if (e.target.classList.contains('close-modal')) {
+                        const cartModal = document.getElementById('cart-modal');
+                        if (cartModal) {
+                            cartModal.style.display = 'none';
+                            document.body.style.overflow = ''; // Restore scrolling
+                        }
+                    }
+                });
+                
+                // Close modal when clicking outside content
+                window.addEventListener('click', function(e) {
+                    const cartModal = document.getElementById('cart-modal');
+                    if (e.target === cartModal) {
+                        cartModal.style.display = 'none';
+                        document.body.style.overflow = ''; // Restore scrolling
+                    }
+                });
+            }
+            
+            // Initialize cart modal functionality
+            function initCartModal() {
+                const cartModal = document.getElementById('cart-modal');
+                if (!cartModal) return;
+                
+                // Make sure modal is properly styled
+                cartModal.style.display = 'none';
+                
+                // Initialize checkout button
+                const checkoutBtn = cartModal.querySelector('.checkout-btn');
+                if (checkoutBtn) {
+                    checkoutBtn.addEventListener('click', function() {
+                        // Get cart count
+                        const cartCount = document.querySelector('.cart-count');
+                        const count = cartCount ? parseInt(cartCount.textContent || '0') : 0;
+                        
+                        if (count > 0) {
+                            window.location.href = 'checkout.html';
+                        } else {
+                            showNotification('Please add items to your cart first');
+                        }
+                    });
+                }
+            }
+            
+            // Filter menu items by category
+            function filterMenuItems(category) {
+                const activeSection = document.querySelector('.menu-mode:not([style*="display: none"])');
+                if (!activeSection) return;
+                
+                const items = activeSection.querySelectorAll('.item-card, .slider-item');
+                items.forEach(item => {
+                    const itemCategory = item.getAttribute('data-category');
+                    if (category === 'all' || itemCategory === category) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Reinitialize sliders after filtering
+                setTimeout(() => {
+                    if (category === 'all') {
+                        initMenuSliders();
+                    }
+                }, 100);
+            }
+        });
+    </script>
+</head>
+<body class="body-cafe">
+    <!-- Menu Transition Overlay -->
+    <div class="menu-transition-overlay"></div>
+
+    <!-- Mode Switcher for Cafe/Restaurant -->
+    <div class="menu-experience-switcher">
+        <div class="mode-label">Experience</div>
+        <div class="toggle-container">
+            <div class="mode-option cafe-option active" data-mode="cafe">
+                <i class="fas fa-coffee menu-icon"></i>
+            </div>
+            <div class="mode-option restaurant-option" data-mode="restaurant">
+                <i class="fas fa-utensils menu-icon"></i>
+            </div>
+            <div class="toggle-slider">
+                <i class="fas fa-coffee"></i>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <nav>
+            <div class="logo">Chaos <span>Café</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html" class="active">Menu</a></li>
+                <li><a href="reservation.html">Reservations</a></li>
+                <li><a href="order.html">Order Online</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+            </ul>
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <input type="text" class="search-input" placeholder="Search menu...">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="cart-icon">
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+                <span class="cart-count">3</span>
+            </div>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Featured Menu Slider -->
+    <section class="featured-slider">
+        <div class="featured-header">
+            <h2 class="section-title">Chef's <span>Specialties</span></h2>
+            <p class="section-subtitle">Indulge in our chef's handcrafted signature dishes, curated with the finest seasonal ingredients</p>
+        </div>
+        
+        <div class="slider-wrapper">
+            <div class="slider-nav">
+                <button class="slider-btn slider-prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="slider-btn slider-next"><i class="fas fa-chevron-right"></i></button>
+    </div>
+            
+            <div class="slider-container">
+                <div class="slider-item active">
+                    <div class="item-card">
+                        <div class="item-badge">Chef's Choice</div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1600891964092-4316c288032e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Truffle Pasta">
+                        </div>
+                        <div class="item-info">
+                            <h3 class="item-title">Truffle Pasta</h3>
+                            <div class="item-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span class="rating-count">147 reviews</span>
+                            </div>
+                            <p class="item-description">Handmade fettuccine with black truffle cream sauce, wild mushrooms, and aged parmesan. Garnished with fresh herbs and truffle oil.</p>
+                            <div class="item-meta">
+                                <span class="item-price">₹450</span>
+                                <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                            </div>
+                            <div class="item-action">
+                                <button class="order-btn">Order Now</button>
+                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slider-item">
+                    <div class="item-card">
+                        <div class="item-badge">Bestseller</div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1608835291093-394b0c943a75?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Blueberry Pancakes">
+                        </div>
+                        <div class="item-info">
+                            <h3 class="item-title">Blueberry Pancakes</h3>
+                            <div class="item-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="rating-count">203 reviews</span>
+                            </div>
+                            <p class="item-description">Fluffy pancakes with fresh blueberries, maple syrup, and a side of whipped mascarpone butter. Served with fresh berries and mint.</p>
+                            <div class="item-meta">
+                                <span class="item-price">₹320</span>
+                                <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                            </div>
+                            <div class="item-action">
+                                <button class="order-btn">Order Now</button>
+                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slider-item">
+                    <div class="item-card">
+                        <div class="item-badge">New</div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Artisan Pizza">
+                        </div>
+                        <div class="item-info">
+                            <h3 class="item-title">Artisan Pizza</h3>
+                            <div class="item-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <span class="rating-count">98 reviews</span>
+                            </div>
+                            <p class="item-description">Wood-fired pizza with pepperoni, mozzarella, San Marzano tomato sauce, and fresh basil. Drizzled with extra virgin olive oil.</p>
+                            <div class="item-meta">
+                                <span class="item-price">₹380</span>
+                                <span class="item-tag non-vegetarian"><i class="fas fa-drumstick-bite"></i> Non-Veg</span>
+                            </div>
+                            <div class="item-action">
+                                <button class="order-btn">Order Now</button>
+                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slider-item">
+                    <div class="item-card">
+                        <div class="item-badge">Seasonal</div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Avocado Toast">
+                        </div>
+                        <div class="item-info">
+                            <h3 class="item-title">Avocado Toast</h3>
+                            <div class="item-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span class="rating-count">176 reviews</span>
+                            </div>
+                            <p class="item-description">Toasted artisan bread with smashed avocado, cherry tomatoes, feta cheese, and micro greens. Finished with olive oil and chili flakes.</p>
+                            <div class="item-meta">
+                                <span class="item-price">₹290</span>
+                                <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                            </div>
+                            <div class="item-action">
+                                <button class="order-btn">Order Now</button>
+                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slider-item">
+                    <div class="item-card">
+                        <div class="item-badge">Signature</div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Butternut Soup">
+                        </div>
+                        <div class="item-info">
+                            <h3 class="item-title">Butternut Soup</h3>
+                            <div class="item-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="rating-count">122 reviews</span>
+                            </div>
+                            <p class="item-description">Creamy butternut squash soup with roasted garlic, toasted pumpkin seeds, and truffle oil. Served with house-baked focaccia bread.</p>
+                            <div class="item-meta">
+                                <span class="item-price">₹250</span>
+                                <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                            </div>
+                            <div class="item-action">
+                                <button class="order-btn">Order Now</button>
+                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slider-item">
+                    <div class="item-card">
+                        <div class="item-badge">Premium</div>
+                        <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Ribeye Steak">
+                        </div>
+                        <div class="item-info">
+                            <h3 class="item-title">Aged Ribeye Steak</h3>
+                            <div class="item-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span class="rating-count">138 reviews</span>
+                            </div>
+                            <p class="item-description">21-day aged ribeye steak with garlic butter, roasted vegetables, and truffle mashed potatoes. Finished with red wine reduction.</p>
+                            <div class="item-meta">
+                                <span class="item-price">₹650</span>
+                                <span class="item-tag non-vegetarian"><i class="fas fa-drumstick-bite"></i> Non-Veg</span>
+                            </div>
+                            <div class="item-action">
+                                <button class="order-btn">Order Now</button>
+                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pagination-dots">
+                <!-- Dots will be generated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <section id="menu-filter">
+        <div class="container">
+            <!-- Cafe Menu Filters -->
+            <div class="filter-container cafe-filters">
+                <div class="menu-tabs">
+                    <button class="menu-tab active" data-filter="all">All</button>
+                    <button class="menu-tab" data-filter="starters">Breakfast</button>
+                    <button class="menu-tab" data-filter="coffee">Coffee</button>
+                    <button class="menu-tab" data-filter="desserts">Desserts</button>
+                </div>
+                <div class="diet-filter">
+                    <span>Dietary Preference:</span>
+                    <button class="diet-btn active" data-diet="all">All</button>
+                    <button class="diet-btn" data-diet="veg">Vegetarian</button>
+                </div>
+            </div>
+            
+            <!-- Restaurant Menu Filters -->
+            <div class="filter-container restaurant-filters" style="display: none;">
+            <div class="menu-tabs">
+                <button class="menu-tab active" data-filter="all">All</button>
+                <button class="menu-tab" data-filter="starters">Starters</button>
+                <button class="menu-tab" data-filter="mains">Mains</button>
+                <button class="menu-tab" data-filter="desserts">Desserts</button>
+            </div>
+            <div class="diet-filter">
+                <span>Dietary Preference:</span>
+                <button class="diet-btn active" data-diet="all">All</button>
+                <button class="diet-btn" data-diet="veg">Vegetarian</button>
+                <button class="diet-btn" data-diet="non-veg">Non-Vegetarian</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu-section">
+        <div class="container">
+            <!-- Cafe Menu Section -->
+            <div class="menu-mode cafe-menu">
+                <h2 class="section-title">Café Menu</h2>
+            <div class="menu-category" data-category="starters">
+                    <h2 class="menu-category-title">Breakfast & Starters</h2>
+                    <div class="menu-slider" data-category="starters">
+                        <div class="slider-nav">
+                            <button class="slider-btn slider-prev"><i class="fas fa-chevron-left"></i></button>
+                            <button class="slider-btn slider-next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-item" data-type="veg" data-category="starters">
+                                <div class="item-card">
+                                    <div class="item-image">
+                            <img src="https://images.unsplash.com/photo-1546039907-5d9764d2860e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Bruschetta">
+                        </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Bruschetta</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                                            <span class="rating-count">84 reviews</span>
+                                </div>
+                                        <p class="item-description">Toasted artisan bread with fresh tomatoes, basil, and extra virgin olive oil</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹275</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+
+                            <div class="slider-item" data-type="veg" data-category="starters">
+                                <div class="item-card">
+                                    <div class="item-badge">Bestseller</div>
+                                    <div class="item-image">
+                                        <img src="cafe/croissant.jpg" alt="Butter Croissant">
+                        </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Butter Croissant</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                            </div>
+                                            <span class="rating-count">112 reviews</span>
+                                </div>
+                                        <p class="item-description">Classic French buttery, flaky pastry baked to golden perfection</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹150</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+
+                            <div class="slider-item" data-type="veg" data-category="starters">
+                                <div class="item-card">
+                                    <div class="item-image">
+                                        <img src="cafe/waffles.jpg" alt="Belgian Waffles">
+                        </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Belgian Waffles</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                            </div>
+                                            <span class="rating-count">93 reviews</span>
+                                </div>
+                                        <p class="item-description">Served with maple syrup, fresh seasonal berries and whipped cream</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹220</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                            </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-item" data-type="veg" data-category="starters">
+                                <div class="item-card">
+                                    <div class="item-badge">Popular</div>
+                                    <div class="item-image">
+                                        <img src="cafe/pancakes.jpg" alt="Pancake Stack">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Pancake Stack</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </div>
+                                            <span class="rating-count">127 reviews</span>
+                                        </div>
+                                        <p class="item-description">Fluffy pancakes with maple syrup, butter and seasonal fruits</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹195</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-item" data-type="veg" data-category="starters">
+                                <div class="item-card">
+                                    <div class="item-image">
+                                        <img src="cafe/muffins.jpg" alt="Blueberry Muffin">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Blueberry Muffin</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <span class="rating-count">87 reviews</span>
+                                        </div>
+                                        <p class="item-description">Freshly baked muffin bursting with juicy blueberries and a hint of lemon</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹120</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-item" data-type="veg" data-category="starters">
+                                <div class="item-card">
+                                    <div class="item-badge">Premium</div>
+                                    <div class="item-image">
+                                        <img src="cafe/crosant.jpg" alt="Almond Croissant">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Almond Croissant</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <span class="rating-count">106 reviews</span>
+                                        </div>
+                                        <p class="item-description">Flaky croissant filled with almond cream and topped with sliced almonds</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹180</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pagination-dots">
+                            <!-- Dots will be generated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-category" data-category="coffee">
+                    <h2 class="menu-category-title">Coffee & Beverages</h2>
+                    <div class="menu-slider" data-category="coffee">
+                        <div class="slider-nav">
+                            <button class="slider-btn slider-prev"><i class="fas fa-chevron-left"></i></button>
+                            <button class="slider-btn slider-next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-item" data-type="veg" data-category="coffee">
+                                <div class="item-card">
+                                    <div class="item-badge">Bestseller</div>
+                                    <div class="item-image">
+                                        <img src="cafe/capucinno.jpg" alt="Cappuccino">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Cappuccino</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </div>
+                                            <span class="rating-count">156 reviews</span>
+                                        </div>
+                                        <p class="item-description">Espresso with steamed milk and a dense, thick foam, sprinkled with cocoa powder</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹180</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-item" data-type="veg" data-category="coffee">
+                                <div class="item-card">
+                                    <div class="item-image">
+                                        <img src="cafe/latte.jpg" alt="Caffè Latte">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Caffè Latte</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <span class="rating-count">134 reviews</span>
+                                        </div>
+                                        <p class="item-description">Rich espresso with steamed milk and a light layer of foam</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹190</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-item" data-type="veg" data-category="coffee">
+                                <div class="item-card">
+                                    <div class="item-badge">New</div>
+                                    <div class="item-image">
+                                        <img src="cafe/mocha.jpg" alt="Caffè Mocha">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Caffè Mocha</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </div>
+                                            <span class="rating-count">98 reviews</span>
+                                        </div>
+                                        <p class="item-description">Espresso with chocolate syrup, steamed milk, and whipped cream on top</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹210</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-item" data-type="veg" data-category="coffee">
+                                <div class="item-card">
+                                    <div class="item-image">
+                                        <img src="cafe/green tea.jpg" alt="Green Tea">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Green Tea</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <span class="rating-count">87 reviews</span>
+                                        </div>
+                                        <p class="item-description">Delicate green tea with antioxidant properties, served hot or iced</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹160</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slider-item" data-type="veg" data-category="coffee">
+                                <div class="item-card">
+                                    <div class="item-badge">Spicy</div>
+                                    <div class="item-image">
+                                        <img src="cafe/chai tea latte.jpg" alt="Chai Tea Latte">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3 class="item-title">Chai Tea Latte</h3>
+                                        <div class="item-rating">
+                                            <div class="stars">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <span class="rating-count">142 reviews</span>
+                                        </div>
+                                        <p class="item-description">Spiced tea with milk and a hint of cardamom, cinnamon, and ginger</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹170</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pagination-dots">
+                            <!-- Dots will be generated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-category" data-category="mains">
+                    <h2 class="menu-category-title">Main Course</h2>
+                        <div class="menu-slider" data-category="mains">
+                            <div class="slider-nav">
+                                <button class="slider-btn slider-prev"><i class="fas fa-chevron-left"></i></button>
+                                <button class="slider-btn slider-next"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            
+                            <div class="slider-container">
+                                <div class="slider-item" data-type="non-veg" data-category="mains">
+                                    <div class="item-card">
+                                        <div class="item-badge">Signature</div>
+                                        <div class="item-image">
+                                <img src="https://images.unsplash.com/photo-1600891964092-4316c288032e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Ribeye Steak">
+                            </div>
+                                        <div class="item-info">
+                                            <h3 class="item-title">Ribeye Steak</h3>
+                                            <div class="item-rating">
+                                                <div class="stars">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                            </div>
+                                            <span class="rating-count">182 reviews</span>
+                                        </div>
+                                        <p class="item-description">Aged ribeye with truffle mashed potatoes and seasonal vegetables</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹850</span>
+                                            <span class="item-tag non-vegetarian"><i class="fas fa-drumstick-bite"></i> Non-Veg</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+
+                                <div class="slider-item" data-type="veg" data-category="mains">
+                                    <div class="item-card">
+                                        <div class="item-image">
+                                            <img src="restaurant/pasta.jpg" alt="Truffle Pasta">
+                            </div>
+                                        <div class="item-info">
+                                            <h3 class="item-title">Truffle Pasta</h3>
+                                            <div class="item-rating">
+                                                <div class="stars">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                            </div>
+                                            <span class="rating-count">156 reviews</span>
+                                        </div>
+                                        <p class="item-description">Pappardelle with creamy truffle sauce, wild mushrooms and parmesan</p>
+                                        <div class="item-meta">
+                                            <span class="item-price">₹620</span>
+                                            <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                        </div>
+                                        <div class="item-action">
+                                            <button class="order-btn">Order Now</button>
+                                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="slider-item" data-type="non-veg" data-category="mains">
+                                    <div class="item-card">
+                                        <div class="item-badge">Seafood</div>
+                                        <div class="item-image">
+                                            <img src="https://images.unsplash.com/photo-1548675383-5ca0fb5dbfbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Grilled Salmon">
+                                        </div>
+                                        <div class="item-info">
+                                            <h3 class="item-title">Grilled Salmon</h3>
+                                            <div class="item-rating">
+                                                <div class="stars">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                                <span class="rating-count">129 reviews</span>
+                                            </div>
+                                            <p class="item-description">Wild-caught salmon with saffron risotto and grilled asparagus</p>
+                                            <div class="item-meta">
+                                                <span class="item-price">₹780</span>
+                                                <span class="item-tag non-vegetarian"><i class="fas fa-drumstick-bite"></i> Non-Veg</span>
+                                            </div>
+                                            <div class="item-action">
+                                                <button class="order-btn">Order Now</button>
+                                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="slider-item" data-type="veg" data-category="mains">
+                                    <div class="item-card">
+                                        <div class="item-badge">Spicy</div>
+                                        <div class="item-image">
+                                            <img src="restaurant/paneer tikka masala.jpg" alt="Paneer Tikka Masala">
+                                        </div>
+                                        <div class="item-info">
+                                            <h3 class="item-title">Paneer Tikka Masala</h3>
+                                            <div class="item-rating">
+                                                <div class="stars">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="far fa-star"></i>
+                                                </div>
+                                                <span class="rating-count">143 reviews</span>
+                                            </div>
+                                            <p class="item-description">Grilled cottage cheese cubes in a rich tomato-based gravy, served with naan</p>
+                                            <div class="item-meta">
+                                                <span class="item-price">₹450</span>
+                                                <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                            </div>
+                                            <div class="item-action">
+                                                <button class="order-btn">Order Now</button>
+                                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="slider-item" data-type="veg" data-category="mains">
+                                    <div class="item-card">
+                                        <div class="item-badge">Chef's Special</div>
+                                        <div class="item-image">
+                                            <img src="restaurant/Kadai Paneer.jpg" alt="Kadai Paneer">
+                                        </div>
+                                        <div class="item-info">
+                                            <h3 class="item-title">Kadai Paneer</h3>
+                                            <div class="item-rating">
+                                                <div class="stars">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                </div>
+                                                <span class="rating-count">167 reviews</span>
+                                            </div>
+                                            <p class="item-description">Cottage cheese with bell peppers in a spiced onion-tomato gravy, served with roti</p>
+                                            <div class="item-meta">
+                                                <span class="item-price">₹420</span>
+                                                <span class="item-tag vegetarian"><i class="fas fa-leaf"></i> Vegetarian</span>
+                                            </div>
+                                            <div class="item-action">
+                                                <button class="order-btn">Order Now</button>
+                                                <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="pagination-dots">
+                                <!-- Dots will be generated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-category" data-category="desserts">
+                    <h2 class="menu-category-title">Desserts</h2>
+                    <div class="category-slider" data-category="desserts">
+                        <div class="slider-container">
+                            <div class="slider-track">
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                            <img src="https://images.unsplash.com/photo-1546039907-5d9764d2860e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Bruschetta">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Bruschetta</h3>
+                                            <p>Toasted artisan bread with tomatoes, basil, and olive oil</p>
+                                            <div class="price">₹275</div>
+                                <div class="menu-item-tags">
+                                    <span class="menu-item-tag">Veg</span>
+                                </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="cafe/croissant.jpg" alt="Croissant">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Butter Croissant</h3>
+                                            <p>Classic French buttery, flaky pastry</p>
+                                            <div class="price">₹150</div>
+                                <div class="menu-item-tags">
+                                    <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Bestseller</span>
+                            </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="cafe/waffles.jpg" alt="Waffles">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Belgian Waffles</h3>
+                                            <p>Served with maple syrup, fresh berries and whipped cream</p>
+                                            <div class="price">₹220</div>
+                                <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Veg</span>
+                                </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="cafe/pancakes.jpg" alt="Pancake Stack">
+                                        </div>
+                                        <div class="slider-info">
+                                            <h3>Pancake Stack</h3>
+                                            <p>Fluffy pancakes with maple syrup and seasonal fruits</p>
+                                            <div class="price">₹195</div>
+                                <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Veg</span>
+                                    <span class="menu-item-tag">Popular</span>
+                                            </div>
+                                            <button class="menu-item-action">Order</button>
+                                        </div>
+                </div>
+            </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="cafe/muffins.jpg" alt="Blueberry Muffin">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Blueberry Muffin</h3>
+                                            <p>Freshly baked muffin bursting with juicy blueberries</p>
+                                            <div class="price">₹120</div>
+                                            <div class="menu-item-tags">
+                                    <span class="menu-item-tag">Veg</span>
+                            </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="cafe/crosant.jpg" alt="Almond Croissant">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Almond Croissant</h3>
+                                            <p>Flaky croissant filled with almond cream and topped with sliced almonds</p>
+                                            <div class="price">₹180</div>
+                                <div class="menu-item-tags">
+                                    <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Premium</span>
+                                </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="non-veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Eggs Benedict">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Eggs Benedict</h3>
+                                            <p>Poached eggs with hollandaise sauce on English muffin</p>
+                                            <div class="price">₹280</div>
+                                            <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Non-Veg</span>
+                                                <span class="menu-item-tag">Breakfast Special</span>
+                            </div>
+                                            <button class="menu-item-action">Order</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1495214783159-30a097e8f929?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Avocado Toast">
+                                        </div>
+                                        <div class="slider-info">
+                                            <h3>Avocado Toast</h3>
+                                            <p>Smashed avocado on artisan sourdough with cherry tomatoes</p>
+                                            <div class="price">₹240</div>
+                                <div class="menu-item-tags">
+                                    <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Healthy</span>
+                                </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Overnight Oats">
+                                        </div>
+                                        <div class="slider-info">
+                                            <h3>Overnight Oats</h3>
+                                            <p>Steel-cut oats soaked with almond milk, topped with fruit and nuts</p>
+                                            <div class="price">₹190</div>
+                                            <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Plant-Based</span>
+                                            </div>
+                                            <button class="menu-item-action">Order</button>
+                                        </div>
+                </div>
+            </div>
+
+                                <div class="slider-item" data-type="non-veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1565299507177-b0ac66763828?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Breakfast Burrito">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Breakfast Burrito</h3>
+                                            <p>Scrambled eggs, cheese, beans and salsa wrapped in a tortilla</p>
+                                            <div class="price">₹260</div>
+                                            <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Non-Veg</span>
+                                                <span class="menu-item-tag">Filling</span>
+                            </div>
+                                            <button class="menu-item-action">Order</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1484723091739-30a097e8f929?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Fruit Parfait">
+                                        </div>
+                                        <div class="slider-info">
+                                            <h3>Fruit Parfait</h3>
+                                            <p>Layered Greek yogurt with seasonal fruits, granola and honey</p>
+                                            <div class="price">₹170</div>
+                                <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Fresh</span>
+                                </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1587314168485-3236d6710814?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Vegan Scramble">
+                        </div>
+                                        <div class="slider-info">
+                                            <h3>Vegan Scramble</h3>
+                                            <p>Tofu scramble with peppers, spinach and mushrooms</p>
+                                            <div class="price">₹230</div>
+                                <div class="menu-item-tags">
+                                    <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Vegan</span>
+                                </div>
+                                <button class="menu-item-action">Order</button>
+                            </div>
+                        </div>
+                    </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1541599188900-da3e74a4dc00?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Ricotta Hotcakes">
+                </div>
+                                        <div class="slider-info">
+                                            <h3>Ricotta Hotcakes</h3>
+                                            <p>Fluffy ricotta pancakes served with honeycomb butter</p>
+                                            <div class="price">₹250</div>
+                                            <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Chef's Special</span>
+            </div>
+                                            <button class="menu-item-action">Order</button>
+        </div>
+                                    </div>
+                                </div>
+
+                                <div class="slider-item" data-type="veg">
+                                    <div class="slider-content">
+                                        <div class="slider-image">
+                                            <img src="https://images.unsplash.com/photo-1586511925558-a4c6376fe65f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="French Toast">
+                    </div>
+                                        <div class="slider-info">
+                                            <h3>French Toast</h3>
+                                            <p>Brioche bread dipped in vanilla custard and pan-fried</p>
+                                            <div class="price">₹210</div>
+                                            <div class="menu-item-tags">
+                                                <span class="menu-item-tag">Veg</span>
+                                                <span class="menu-item-tag">Sweet</span>
+                    </div>
+                                            <button class="menu-item-action">Order</button>
+                </div>
+                    </div>
+                    </div>
+                </div>
+                            
+                            <div class="slider-controls">
+                                <button class="slider-btn prev"><i class="fas fa-chevron-left"></i></button>
+                                <button class="slider-btn next"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            
+                            <div class="slider-dots">
+                                <!-- Dots will be generated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p>123 Cafe Street</p>
+                <p>City, State 12345</p>
+                <p>Phone: (555) 123-4567</p>
+            </div>
+            <div class="footer-section">
+                <h4>Hours</h4>
+                <p>Monday - Friday: 11am - 10pm</p>
+                <p>Saturday - Sunday: 10am - 11pm</p>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Newsletter</h4>
+                <p>Subscribe to get special offers and event updates</p>
+                <form class="footer-subscribe">
+                    <div class="subscribe-container">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Cafe Delight. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Your Order</h2>
+            <div class="cart-items">
+                <!-- Cart items will be dynamically added here -->
+            </div>
+            <div class="cart-summary">
+                <div class="subtotal">
+                    <span>Subtotal:</span>
+                    <span class="subtotal-amount">₹0.00</span>
+                </div>
+                <div class="tax">
+                    <span>Tax (10%):</span>
+                    <span class="tax-amount">₹0.00</span>
+                </div>
+                <div class="total">
+                    <span>Total:</span>
+                    <span class="total-amount">₹0.00</span>
+                </div>
+            </div>
+            <button class="btn primary checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize menu filters and mode switching
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuTabs = document.querySelectorAll('.menu-tab');
+            const dietBtns = document.querySelectorAll('.diet-btn');
+            const menuItems = document.querySelectorAll('.menu-item');
+            
+            // Mode Switcher for Cafe/Restaurant Toggle
+            const cafeOption = document.querySelector('.cafe-option');
+            const restaurantOption = document.querySelector('.restaurant-option');
+            const cafeMenu = document.querySelector('.cafe-menu');
+            const restaurantMenu = document.querySelector('.restaurant-menu');
+            const cafeFilters = document.querySelector('.cafe-filters');
+            const restaurantFilters = document.querySelector('.restaurant-filters');
+            const body = document.body;
+            
+            // Toggle cafe mode
+            cafeOption.addEventListener('click', function() {
+                cafeOption.classList.add('active');
+                restaurantOption.classList.remove('active');
+                body.classList.add('body-cafe');
+                body.classList.remove('body-restaurant');
+                
+                // Show cafe menu, hide restaurant menu
+                cafeMenu.style.display = 'block';
+                restaurantMenu.style.display = 'none';
+                
+                // Show cafe filters, hide restaurant filters
+                cafeFilters.style.display = 'block';
+                restaurantFilters.style.display = 'none';
+                
+                // Update toggle slider
+                document.querySelector('.toggle-slider i').className = 'fas fa-coffee';
+                
+                // Add transition effect
+                const overlay = document.querySelector('.menu-transition-overlay');
+                overlay.classList.add('menu-transition-active');
+                setTimeout(() => {
+                    overlay.classList.remove('menu-transition-active');
+                }, 500);
+                
+                // Reinitialize sliders to fix layout
+                setTimeout(initializeSliders, 100);
+            });
+            
+            // Toggle restaurant mode
+            restaurantOption.addEventListener('click', function() {
+                cafeOption.classList.remove('active');
+                restaurantOption.classList.add('active');
+                body.classList.remove('body-cafe');
+                body.classList.add('body-restaurant');
+                
+                // Show restaurant menu, hide cafe menu
+                cafeMenu.style.display = 'none';
+                restaurantMenu.style.display = 'block';
+                
+                // Show restaurant filters, hide cafe filters
+                cafeFilters.style.display = 'none';
+                restaurantFilters.style.display = 'block';
+                
+                // Update toggle slider
+                document.querySelector('.toggle-slider i').className = 'fas fa-utensils';
+                
+                // Add transition effect
+                const overlay = document.querySelector('.menu-transition-overlay');
+                overlay.classList.add('menu-transition-active');
+                setTimeout(() => {
+                    overlay.classList.remove('menu-transition-active');
+                }, 500);
+                
+                // Reinitialize sliders to fix layout
+                setTimeout(initializeSliders, 100);
+            });
+            
+            // Category sliders initialization
+            initializeSliders();
+            
+            // Initialize page with cafe mode
+            document.querySelector('.body-cafe');
+            cafeMenu.style.display = 'block';
+            restaurantMenu.style.display = 'none';
+            cafeFilters.style.display = 'block';
+            restaurantFilters.style.display = 'none';
+            
+            // Update section titles based on active mode
+            function updateSectionTitles() {
+                if (body.classList.contains('body-cafe')) {
+                    document.querySelector('.section-title').textContent = 'Café Menu';
+                } else {
+                    document.querySelector('.section-title').textContent = 'Restaurant Menu';
+                }
+            }
+            
+            // Call once at initialization
+            updateSectionTitles();
+            
+            // Filter by meal type
+            menuTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    menuTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to current tab
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Show/hide categories based on filter
+                    if (filter === 'all') {
+                        document.querySelectorAll('.menu-category').forEach(cat => {
+                            cat.style.display = 'block';
+                        });
+                    } else {
+                        document.querySelectorAll('.menu-category').forEach(cat => {
+                            if (cat.getAttribute('data-category') === filter) {
+                                cat.style.display = 'block';
+                            } else {
+                                cat.style.display = 'none';
+                            }
+                        });
+                    }
+                    
+                    // Reinitialize sliders after changing tab to fix layout
+                    setTimeout(initializeSliders, 100);
+                });
+            });
+            
+            // Filter by diet preference
+            dietBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all diet buttons
+                    dietBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to current button
+                    this.classList.add('active');
+                    
+                    const diet = this.getAttribute('data-diet');
+                    
+                    // Show/hide menu items based on diet filter
+                    menuItems.forEach(item => {
+                        if (diet === 'all' || item.getAttribute('data-type') === diet) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    // Reinitialize sliders after diet filtering
+                    setTimeout(initializeSliders, 100);
+                });
+            });
+            
+            // Mobile menu toggle
+            document.getElementById('menu-toggle').addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.toggle('active');
+            });
+            
+            // Function to initialize all sliders
+            function initializeSliders() {
+                // Get all sliders
+                const sliders = document.querySelectorAll('.category-slider');
+                
+                sliders.forEach(slider => {
+                    const track = slider.querySelector('.slider-track');
+                    const items = slider.querySelectorAll('.slider-item');
+                    const prevBtn = slider.querySelector('.slider-btn.prev');
+                    const nextBtn = slider.querySelector('.slider-btn.next');
+                    const dots = slider.querySelectorAll('.slider-dot');
+                    
+                    // No items, exit
+                    if (items.length === 0) return;
+                    
+                    let currentIndex = 0;
+                    
+                    // Make first item active
+                    items[0].classList.add('active');
+                    dots[0].classList.add('active');
+                    
+                    // Set previous and next items
+                    if (items.length > 1) {
+                        items[items.length - 1].classList.add('prev');
+                        items[1].classList.add('next');
+                    }
+                    
+                    // Add tracking for extras dots
+                    if (dots.length > items.length) {
+                        for (let i = items.length; i < dots.length; i++) {
+                            dots[i].style.display = 'none';
+                        }
+                    }
+                    
+                    // Add click handler for previous button
+                    prevBtn.addEventListener('click', () => {
+                        items.forEach(item => item.classList.remove('active', 'prev', 'next'));
+                        dots.forEach(dot => dot.classList.remove('active'));
+                        
+                        currentIndex = (currentIndex - 1 + items.length) % items.length;
+                        
+                        items[currentIndex].classList.add('active');
+                        items[(currentIndex - 1 + items.length) % items.length].classList.add('prev');
+                        items[(currentIndex + 1) % items.length].classList.add('next');
+                        
+                        dots[currentIndex].classList.add('active');
+                    });
+                    
+                    // Add click handler for next button
+                    nextBtn.addEventListener('click', () => {
+                        items.forEach(item => item.classList.remove('active', 'prev', 'next'));
+                        dots.forEach(dot => dot.classList.remove('active'));
+                        
+                        currentIndex = (currentIndex + 1) % items.length;
+                        
+                        items[currentIndex].classList.add('active');
+                        items[(currentIndex - 1 + items.length) % items.length].classList.add('prev');
+                        items[(currentIndex + 1) % items.length].classList.add('next');
+                        
+                        dots[currentIndex].classList.add('active');
+                    });
+                    
+                    // Add click handlers for dots
+                    dots.forEach((dot, index) => {
+                        if (index < items.length) {
+                            dot.addEventListener('click', () => {
+                                items.forEach(item => item.classList.remove('active', 'prev', 'next'));
+                                dots.forEach(dot => dot.classList.remove('active'));
+                                
+                                currentIndex = index;
+                                
+                                items[currentIndex].classList.add('active');
+                                items[(currentIndex - 1 + items.length) % items.length].classList.add('prev');
+                                items[(currentIndex + 1) % items.length].classList.add('next');
+                                
+                                dots[currentIndex].classList.add('active');
+                            });
+                        }
+                    });
+                    
+                    // Add autoplay functionality
+                    let intervalId = setInterval(() => {
+                        nextBtn.click();
+                    }, 6000);
+                    
+                    // Pause on hover
+                    slider.addEventListener('mouseenter', () => {
+                        clearInterval(intervalId);
+                    });
+                    
+                    slider.addEventListener('mouseleave', () => {
+                        intervalId = setInterval(() => {
+                            nextBtn.click();
+                        }, 6000);
+                    });
+
+                    // Add touch swipe support
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+                    
+                    slider.addEventListener('touchstart', function(e) {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, { passive: true });
+                    
+                    slider.addEventListener('touchend', function(e) {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                    }, { passive: true });
+                    
+                    function handleSwipe() {
+                        if (touchEndX < touchStartX - 50) {
+                            // Swipe left - next slide
+                            nextBtn.click();
+                        } else if (touchEndX > touchStartX + 50) {
+                            // Swipe right - previous slide
+                            prevBtn.click();
+                        }
+                    }
+
+                    // Enhanced hover effect for slider items
+                    items.forEach(item => {
+                        item.addEventListener('mouseenter', () => {
+                            if (item.classList.contains('active')) {
+                                const img = item.querySelector('.slider-image img');
+                                img.style.transform = 'scale(1.12)';
+                                img.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                            }
+                        });
+                        
+                        item.addEventListener('mouseleave', () => {
+                            if (item.classList.contains('active')) {
+                                const img = item.querySelector('.slider-image img');
+                                img.style.transform = 'scale(1.05)';
+                                img.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                            }
+                        });
+                    });
+                });
+            }
+        });
+        
+        // Create animated particles for hero section
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.getElementById('particles-container');
+            if (!particlesContainer) return;
+            
+            // Create particles
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                createParticle(particlesContainer);
+            }
+            
+            // Add mousemove interaction to particles
+            document.addEventListener('mousemove', function(e) {
+                animateParticlesOnMouseMove(e);
+            });
+            
+            // Function to create a single particle
+            function createParticle(container) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size between 5px and 15px
+                const size = Math.random() * 10 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Random opacity
+                particle.style.opacity = Math.random() * 0.6 + 0.2;
+                
+                // Random animation duration and delay
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(particle);
+                return particle;
+            }
+            
+            // Function to animate particles on mouse move
+            function animateParticlesOnMouseMove(e) {
+                const particles = document.querySelectorAll('.particle');
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                
+                particles.forEach(particle => {
+                    // Calculate distance from mouse
+                    const rect = particle.getBoundingClientRect();
+                    const particleX = rect.left + rect.width / 2;
+                    const particleY = rect.top + rect.height / 2;
+                    
+                    const distX = mouseX - particleX;
+                    const distY = mouseY - particleY;
+                    const distance = Math.sqrt(distX * distX + distY * distY);
+                    
+                    // Only affect particles within a certain range
+                    if (distance < 150) {
+                        const strength = (150 - distance) / 150; // 0 to 1
+                        const moveX = distX * strength * -0.03;
+                        const moveY = distY * strength * -0.03;
+                        
+                        particle.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                        particle.style.transition = 'transform 0.5s ease';
+                    } else {
+                        particle.style.transform = '';
+                        particle.style.transition = 'transform 2s ease';
+                    }
+                });
+            }
+            
+            // Add video background fallback
+            const videoElement = document.querySelector('.hero-background video');
+            if (videoElement) {
+                videoElement.addEventListener('error', function() {
+                    const heroBackground = document.querySelector('.hero-background');
+                    heroBackground.style.backgroundImage = 'url("https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80")';
+                    heroBackground.style.backgroundSize = 'cover';
+                    heroBackground.style.backgroundPosition = 'center';
+                });
+            }
+        });
+
+        // Enhanced slider functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all sliders
+            initializeSliders();
+            
+            // Set up category filters
+            setupCategoryFilters();
+            
+            // Set up mode toggles (cafe/restaurant)
+            setupModeToggles();
+            
+            // Set up view changes (grid/list)
+            setupViewChanges();
+            
+            // Function to initialize all sliders on the page
+            function initializeSliders() {
+                const sliders = document.querySelectorAll('.menu-slider, .food-slider');
+                
+                sliders.forEach(slider => {
+                    const sliderId = slider.id || slider.classList[0];
+                    const sliderContainer = slider.querySelector('.slider-container');
+                    const items = slider.querySelectorAll('.slider-item');
+                    const prevBtn = slider.querySelector('.slider-prev');
+                    const nextBtn = slider.querySelector('.slider-next');
+                    const dotsContainer = slider.querySelector('.pagination-dots');
+                    
+                    // If there are no items or navigation elements, skip this slider
+                    if (!items.length || !sliderContainer) return;
+                    
+                    // Calculate visible items based on screen width
+                    let visibleItems = 4;
+                    if (window.innerWidth < 1200) visibleItems = 3;
+                    if (window.innerWidth < 768) visibleItems = 2;
+                    if (window.innerWidth < 576) visibleItems = 1;
+                    
+                    // Set initial position
+                    let currentIndex = 0;
+                    let itemWidth = 100 / visibleItems;
+                    
+                    // Update item widths
+                    items.forEach(item => {
+                        item.style.width = `${itemWidth}%`;
+                    });
+                    
+                    // Create pagination dots if they don't exist
+                    if (dotsContainer && items.length > visibleItems) {
+                        // Clear existing dots
+                        dotsContainer.innerHTML = '';
+                        
+                        // Calculate number of pages
+                        const pageCount = Math.ceil(items.length / visibleItems);
+                        
+                        // Create dots
+                        for (let i = 0; i < pageCount; i++) {
+                            const dot = document.createElement('span');
+                            dot.classList.add('pagination-dot');
+                            if (i === 0) dot.classList.add('active');
+                            dotsContainer.appendChild(dot);
+                            
+                            // Add click handler for dot
+                            dot.addEventListener('click', () => {
+                                goToPage(i);
+                            });
+                        }
+                    }
+                    
+                    // Navigation functions
+                    function goToPage(pageIndex) {
+                        currentIndex = pageIndex * visibleItems;
+                        updateSlider();
+                        updateDots(pageIndex);
+                    }
+                    
+                    function updateSlider() {
+                        const translateValue = -(currentIndex * (100 / items.length));
+                        sliderContainer.style.transform = `translateX(${translateValue}%)`;
+                    }
+                    
+                    function updateDots(pageIndex) {
+                        if (!dotsContainer) return;
+                        
+                        const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                        dots.forEach((dot, i) => {
+                            dot.classList.toggle('active', i === pageIndex);
+                        });
+                    }
+                    
+                    // Add navigation event listeners
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', () => {
+                            if (currentIndex > 0) {
+                                currentIndex -= visibleItems;
+                                if (currentIndex < 0) currentIndex = 0;
+                                updateSlider();
+                                updateDots(Math.floor(currentIndex / visibleItems));
+                            }
+                        });
+                    }
+                    
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', () => {
+                            if (currentIndex < items.length - visibleItems) {
+                                currentIndex += visibleItems;
+                                updateSlider();
+                                updateDots(Math.floor(currentIndex / visibleItems));
+                            }
+                        });
+                    }
+                    
+                    // Add touch swipe support
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+                    
+                    sliderContainer.addEventListener('touchstart', function(e) {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, { passive: true });
+                    
+                    sliderContainer.addEventListener('touchend', function(e) {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                    }, { passive: true });
+                    
+                    function handleSwipe() {
+                        if (touchEndX < touchStartX - 50) {
+                            // Swipe left - next slide
+                            if (nextBtn) nextBtn.click();
+                        } else if (touchEndX > touchStartX + 50) {
+                            // Swipe right - previous slide
+                            if (prevBtn) prevBtn.click();
+                        }
+                    }
+                    
+                    // Update on window resize
+                    window.addEventListener('resize', function() {
+                        // Calculate new visible items based on screen width
+                        let newVisibleItems = 4;
+                        if (window.innerWidth < 1200) newVisibleItems = 3;
+                        if (window.innerWidth < 768) newVisibleItems = 2;
+                        if (window.innerWidth < 576) newVisibleItems = 1;
+                        
+                        // Only update if the number of visible items changed
+                        if (newVisibleItems !== visibleItems) {
+                            visibleItems = newVisibleItems;
+                            itemWidth = 100 / visibleItems;
+                            
+                            // Update item widths
+                            items.forEach(item => {
+                                item.style.width = `${itemWidth}%`;
+                            });
+                            
+                            // Reset position
+                            currentIndex = 0;
+                            updateSlider();
+                            
+                            // Update pagination dots
+                            if (dotsContainer) {
+                                dotsContainer.innerHTML = '';
+                                
+                                // Calculate number of pages
+                                const pageCount = Math.ceil(items.length / visibleItems);
+                                
+                                // Create dots
+                                for (let i = 0; i < pageCount; i++) {
+                                    const dot = document.createElement('span');
+                                    dot.classList.add('pagination-dot');
+                                    if (i === 0) dot.classList.add('active');
+                                    dotsContainer.appendChild(dot);
+                                    
+                                    // Add click handler for dot
+                                    dot.addEventListener('click', () => {
+                                        goToPage(i);
+                                    });
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Function to set up category filters
+            function setupCategoryFilters() {
+                const categoryFilters = document.querySelectorAll('.category-filters');
+                
+                categoryFilters.forEach(filterContainer => {
+                    const filters = filterContainer.querySelectorAll('.category-filter');
+                    const slider = filterContainer.closest('.menu-section').querySelector('.slider-container');
+                    const items = slider ? slider.querySelectorAll('.slider-item') : [];
+                    
+                    filters.forEach(filter => {
+                        filter.addEventListener('click', () => {
+                            // Remove active class from all filters
+                            filters.forEach(f => f.classList.remove('active'));
+                            
+                            // Add active class to clicked filter
+                            filter.classList.add('active');
+                            
+                            // Get category value
+                            const category = filter.getAttribute('data-category');
+                            
+                            // Filter items
+                            items.forEach(item => {
+                                if (category === 'all') {
+                                    item.style.display = '';
+                                } else {
+                                    const itemCategory = item.getAttribute('data-category');
+                                    item.style.display = itemCategory === category ? '' : 'none';
+                                }
+                            });
+                            
+                            // Reset slider position
+                            slider.style.transform = 'translateX(0)';
+                            
+                            // Update pagination dots
+                            const dotsContainer = filterContainer.closest('.menu-section').querySelector('.pagination-dots');
+                            if (dotsContainer) {
+                                const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                                dots.forEach((dot, i) => {
+                                    dot.classList.toggle('active', i === 0);
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+            
+            // Function to set up mode toggles (cafe/restaurant)
+            function setupModeToggles() {
+                const modeOptions = document.querySelectorAll('.mode-option');
+                const menuSections = document.querySelectorAll('.menu-section');
+                
+                modeOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        // Remove active class from all options
+                        modeOptions.forEach(o => o.classList.remove('active'));
+                        
+                        // Add active class to clicked option
+                        option.classList.add('active');
+                        
+                        // Get mode value
+                        const mode = option.getAttribute('data-mode');
+                        
+                        // Show/hide menu sections based on mode
+                        menuSections.forEach(section => {
+                            const sectionMode = section.getAttribute('data-mode');
+                            section.style.display = sectionMode === mode ? '' : 'none';
+                        });
+                    });
+                });
+            }
+            
+            // Function to set up view changes (grid/list)
+            function setupViewChanges() {
+                const viewOptions = document.querySelectorAll('.view-option');
+                const sliders = document.querySelectorAll('.menu-slider, .food-slider');
+                
+                viewOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        // Remove active class from all options
+                        viewOptions.forEach(o => o.classList.remove('active'));
+                        
+                        // Add active class to clicked option
+                        option.classList.add('active');
+                        
+                        // Get view value
+                        const view = option.getAttribute('data-view');
+                        
+                        // Update view for all sliders
+                        sliders.forEach(slider => {
+                            slider.setAttribute('data-view', view);
+                            
+                            // Calculate visible items based on view and screen width
+                            let visibleItems = view === 'grid' ? 4 : 1;
+                            if (view === 'grid') {
+                                if (window.innerWidth < 1200) visibleItems = 3;
+                                if (window.innerWidth < 768) visibleItems = 2;
+                                if (window.innerWidth < 576) visibleItems = 1;
+                            }
+                            
+                            // Update item widths
+                            const items = slider.querySelectorAll('.slider-item');
+                            const itemWidth = 100 / visibleItems;
+                            
+                            items.forEach(item => {
+                                item.style.width = `${itemWidth}%`;
+                            });
+                            
+                            // Reset slider position
+                            const sliderContainer = slider.querySelector('.slider-container');
+                            if (sliderContainer) {
+                                sliderContainer.style.transform = 'translateX(0)';
+                            }
+                            
+                            // Update pagination dots
+                            const dotsContainer = slider.querySelector('.pagination-dots');
+                            if (dotsContainer) {
+                                const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                                dots.forEach((dot, i) => {
+                                    dot.classList.toggle('active', i === 0);
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+    <!-- Slider Functionality Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all interactive elements
+            initAllButtonsAndFeatures();
+            
+            function initAllButtonsAndFeatures() {
+                // Initialize featured slider
+                initFeaturedSlider();
+                
+                // Initialize all menu sliders
+                initMenuSliders();
+                
+                // Initialize all buttons across the page
+                initializeAllButtons();
+                
+                // Setup global click handlers for dynamically added elements
+                setupEventDelegation();
+                
+                // Initialize cart modal functionality
+                initCartModal();
+            }
+            
+            // Add new function to initialize all menu sliders
+            function initMenuSliders() {
+                const menuSliders = document.querySelectorAll('.menu-slider');
+                
+                menuSliders.forEach(slider => {
+                    const sliderContainer = slider.querySelector('.slider-container');
+                    const sliderItems = slider.querySelectorAll('.slider-item');
+                    const prevBtn = slider.querySelector('.slider-prev');
+                    const nextBtn = slider.querySelector('.slider-next');
+                    const dotsContainer = slider.closest('.menu-category').querySelector('.pagination-dots');
+                    const dots = dotsContainer ? dotsContainer.querySelectorAll('.pagination-dot') : [];
+                    
+                    if (!sliderContainer || !sliderItems.length) return;
+                    
+                    // Set initial state
+                    let currentIndex = 0;
+                    let visibleItems = getVisibleItemCount(slider);
+                    
+                    // Set initial widths and positions
+                    updateItemWidths();
+                    
+                    // Add event listeners for navigation
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function() {
+                            navigate('prev');
+                        });
+                    }
+                    
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function() {
+                            navigate('next');
+                        });
+                    }
+                    
+                    // Add event listeners for pagination dots
+                    if (dots.length) {
+                        dots.forEach((dot, index) => {
+                            dot.addEventListener('click', function() {
+                                goToPage(index);
+                            });
+                        });
+                    }
+                    
+                    // Add touch swipe functionality
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+                    
+                    sliderContainer.addEventListener('touchstart', function(e) {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, { passive: true });
+                    
+                    sliderContainer.addEventListener('touchend', function(e) {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                    }, { passive: true });
+                    
+                    function handleSwipe() {
+                        const swipeThreshold = 50;
+                        if (touchEndX < touchStartX - swipeThreshold) {
+                            // Swipe left, go to next
+                            navigate('next');
+                        } else if (touchEndX > touchStartX + swipeThreshold) {
+                            // Swipe right, go to prev
+                            navigate('prev');
+                        }
+                    }
+                    
+                    // Navigation functions
+                    function navigate(direction) {
+                        visibleItems = getVisibleItemCount(slider);
+                        
+                        if (direction === 'next') {
+                            currentIndex++;
+                            if (currentIndex > sliderItems.length - visibleItems) {
+                                currentIndex = 0; // Loop back to first slide
+                            }
+                        } else if (direction === 'prev') {
+                            currentIndex--;
+                            if (currentIndex < 0) {
+                                currentIndex = sliderItems.length - visibleItems; // Loop to last set of slides
+                            }
+                        }
+                        
+                        updateSliderPosition();
+                        updateDots(Math.floor(currentIndex / visibleItems));
+                    }
+                    
+                    function goToPage(pageIndex) {
+                        visibleItems = getVisibleItemCount(slider);
+                        currentIndex = pageIndex * visibleItems;
+                        
+                        if (currentIndex > sliderItems.length - visibleItems) {
+                            currentIndex = sliderItems.length - visibleItems;
+                        }
+                        
+                        updateSliderPosition();
+                        updateDots(pageIndex);
+                    }
+                    
+                    function updateSliderPosition() {
+                        const itemWidth = 100 / visibleItems;
+                        const translateValue = -(currentIndex * itemWidth);
+                        sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                        sliderContainer.style.transform = `translateX(${translateValue}%)`;
+                    }
+                    
+                    function updateDots(activeIndex) {
+                        if (!dots.length) return;
+                        
+                        dots.forEach((dot, index) => {
+                            dot.classList.toggle('active', index === activeIndex);
+                        });
+                    }
+                    
+                    function updateItemWidths() {
+                        visibleItems = getVisibleItemCount(slider);
+                        const itemWidth = 100 / visibleItems;
+                        
+                        sliderItems.forEach(item => {
+                            item.style.width = `${itemWidth}%`;
+                        });
+                        
+                        // Reset position
+                        currentIndex = 0;
+                        sliderContainer.style.transform = 'translateX(0)';
+                        
+                        // Update dots
+                        updateDots(0);
+                    }
+                    
+                    // Calculate visible items based on screen width
+                    function getVisibleItemCount(slider) {
+                        const view = slider.getAttribute('data-view') || 'grid';
+                        let count = view === 'grid' ? 4 : 1;
+                        
+                        if (view === 'grid') {
+                            if (window.innerWidth < 1200) count = 3;
+                            if (window.innerWidth < 768) count = 2;
+                            if (window.innerWidth < 576) count = 1;
+                        }
+                        
+                        return count;
+                    }
+                    
+                    // Handle window resize
+                    window.addEventListener('resize', function() {
+                        updateItemWidths();
+                    });
+                });
+            }
+            
+            function getVisibleItemCount(slider) {
+                const view = slider.getAttribute('data-view') || 'grid';
+                let count = view === 'grid' ? 4 : 1;
+                
+                if (view === 'grid') {
+                    if (window.innerWidth < 1200) count = 3;
+                    if (window.innerWidth < 768) count = 2;
+                    if (window.innerWidth < 576) count = 1;
+                }
+                
+                return count;
+            }
+            
+            function initializeAllButtons() {
+                // Initialize all Order buttons
+                const allOrderButtons = document.querySelectorAll('.order-btn');
+                allOrderButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        handleOrderButton(this);
+                    });
+                });
+                
+                // Initialize all Favorite buttons
+                const allFavoriteButtons = document.querySelectorAll('.favorite-btn');
+                allFavoriteButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleFavorite(this);
+                    });
+                });
+                
+                // Initialize category filters
+                const categoryFilters = document.querySelectorAll('.category-filter');
+                categoryFilters.forEach(filter => {
+                    filter.addEventListener('click', function() {
+                        const categoryGroup = this.closest('.category-filters');
+                        if (categoryGroup) {
+                            // Remove active class from all filters in this group
+                            categoryGroup.querySelectorAll('.category-filter').forEach(f => {
+                                f.classList.remove('active');
+                            });
+                            
+                            // Add active class to clicked filter
+                            this.classList.add('active');
+                            
+                            // Filter items
+                            const category = this.getAttribute('data-category');
+                            const menuSection = this.closest('.menu-section');
+                            if (menuSection) {
+                                const items = menuSection.querySelectorAll('.slider-item, .menu-item');
+                                items.forEach(item => {
+                                    if (category === 'all') {
+                                        item.style.display = '';
+                                    } else {
+                                        const itemCategory = item.getAttribute('data-category');
+                                        item.style.display = itemCategory === category ? '' : 'none';
+                                    }
+                                });
+                            }
+                        }
+                    });
+                });
+                
+                // Initialize mode toggles (café/restaurant)
+                const modeToggles = document.querySelectorAll('.mode-option');
+                modeToggles.forEach(toggle => {
+                    toggle.addEventListener('click', function() {
+                        const toggleGroup = this.closest('.mode-toggle');
+                        if (toggleGroup) {
+                            // Remove active class from all toggles
+                            toggleGroup.querySelectorAll('.mode-option').forEach(t => {
+                                t.classList.remove('active');
+                            });
+                            
+                            // Add active class to clicked toggle
+                            this.classList.add('active');
+                            
+                            // Show/hide sections based on mode
+                            const mode = this.getAttribute('data-mode');
+                            const sections = document.querySelectorAll('.menu-section[data-mode]');
+                            sections.forEach(section => {
+                                const sectionMode = section.getAttribute('data-mode');
+                                section.style.display = sectionMode === mode ? 'block' : 'none';
+                            });
+                        }
+                    });
+                });
+                
+                // Initialize view option toggles (grid/list)
+                const viewOptions = document.querySelectorAll('.view-option');
+                viewOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const optionGroup = this.closest('.view-options');
+                        if (optionGroup) {
+                            // Remove active class from all options
+                            optionGroup.querySelectorAll('.view-option').forEach(o => {
+                                o.classList.remove('active');
+                            });
+                            
+                            // Add active class to clicked option
+                            this.classList.add('active');
+                            
+                            // Get view value
+                            const view = this.getAttribute('data-view');
+                            
+                            // Update view for all sliders
+                            const sliders = document.querySelectorAll('.menu-slider');
+                            sliders.forEach(slider => {
+                                slider.setAttribute('data-view', view);
+                                
+                                // Calculate visible items based on view and screen width
+                                let visibleItems = view === 'grid' ? 4 : 1;
+                                if (view === 'grid') {
+                                    if (window.innerWidth < 1200) visibleItems = 3;
+                                    if (window.innerWidth < 768) visibleItems = 2;
+                                    if (window.innerWidth < 576) visibleItems = 1;
+                                }
+                                
+                                // Update item widths
+                                const items = slider.querySelectorAll('.slider-item');
+                                const itemWidth = 100 / visibleItems;
+                                
+                                items.forEach(item => {
+                                    item.style.width = `${itemWidth}%`;
+                                });
+                                
+                                // Reset slider position
+                                const sliderContainer = slider.querySelector('.slider-container');
+                                if (sliderContainer) {
+                                    sliderContainer.style.transform = 'translateX(0)';
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            
+            // Add restaurant mode sliders initialization
+            function initializeRestaurantSliders() {
+                console.log("Initializing restaurant mode sliders");
+                const restaurantSliders = document.querySelectorAll('.restaurant-menu .menu-slider');
+                
+                restaurantSliders.forEach(slider => {
+                    const sliderContainer = slider.querySelector('.slider-container');
+                    const sliderItems = slider.querySelectorAll('.slider-item');
+                    const prevBtn = slider.querySelector('.slider-prev');
+                    const nextBtn = slider.querySelector('.slider-next');
+                    const dotsContainer = slider.closest('.menu-category').querySelector('.pagination-dots');
+                    
+                    if (!sliderContainer || !sliderItems.length) return;
+                    
+                    // Set initial state
+                    let currentIndex = 0;
+                    let visibleItems = calculateVisibleItems();
+                    
+                    // Update item widths
+                    updateItemWidths();
+                    
+                    // Add navigation event listeners
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function() {
+                            navigate('prev');
+                        });
+                    }
+                    
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function() {
+                            navigate('next');
+                        });
+                    }
+                    
+                    // Add touch swipe support
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+                    
+                    slider.addEventListener('touchstart', function(e) {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, { passive: true });
+                    
+                    slider.addEventListener('touchend', function(e) {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                    }, { passive: true });
+                    
+                    function handleSwipe() {
+                        const swipeThreshold = 50;
+                        if (touchEndX < touchStartX - swipeThreshold) {
+                            // Swipe left, go to next
+                            navigate('next');
+                        } else if (touchEndX > touchStartX + swipeThreshold) {
+                            // Swipe right, go to prev
+                            navigate('prev');
+                        }
+                    }
+                    
+                    // Calculate visible items based on screen width
+                    function calculateVisibleItems() {
+                        let count = 3;
+                        if (window.innerWidth < 1200) count = 2;
+                        if (window.innerWidth < 768) count = 1;
+                        return count;
+                    }
+                    
+                    // Update item widths
+                    function updateItemWidths() {
+                        visibleItems = calculateVisibleItems();
+                        const itemWidth = 100 / visibleItems;
+                        
+                        sliderItems.forEach(item => {
+                            item.style.width = `${itemWidth}%`;
+                        });
+                        
+                        // Create pagination dots
+                        if (dotsContainer) {
+                            createPaginationDots();
+                        }
+                    }
+                    
+                    // Create pagination dots
+                    function createPaginationDots() {
+                        if (!dotsContainer) return;
+                        
+                        // Clear existing dots
+                        dotsContainer.innerHTML = '';
+                        
+                        // Calculate number of pages
+                        const pageCount = Math.ceil(sliderItems.length / visibleItems);
+                        
+                        // Create dots
+                        for (let i = 0; i < pageCount; i++) {
+                            const dot = document.createElement('span');
+                            dot.classList.add('pagination-dot');
+                            if (i === 0) dot.classList.add('active');
+                            
+                            dot.addEventListener('click', function() {
+                                goToPage(i);
+                            });
+                            
+                            dotsContainer.appendChild(dot);
+                        }
+                    }
+                    
+                    // Navigation functions
+                    function navigate(direction) {
+                        if (direction === 'next') {
+                            currentIndex++;
+                            if (currentIndex > sliderItems.length - visibleItems) {
+                                currentIndex = 0; // Loop back to start
+                            }
+                        } else if (direction === 'prev') {
+                            currentIndex--;
+                            if (currentIndex < 0) {
+                                currentIndex = sliderItems.length - visibleItems; // Loop to end
+                            }
+                        }
+                        
+                        updateSliderPosition();
+                        updateDots();
+                    }
+                    
+                    function goToPage(pageIndex) {
+                        currentIndex = pageIndex * visibleItems;
+                        
+                        // Make sure we don't go past the end
+                        if (currentIndex > sliderItems.length - visibleItems) {
+                            currentIndex = sliderItems.length - visibleItems;
+                        }
+                        
+                        updateSliderPosition();
+                        updateDots();
+                    }
+                    
+                    function updateSliderPosition() {
+                        const itemWidth = 100 / visibleItems;
+                        const translateValue = -(currentIndex * itemWidth);
+                        sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                        sliderContainer.style.transform = `translateX(${translateValue}%)`;
+                    }
+                    
+                    function updateDots() {
+                        if (!dotsContainer) return;
+                        
+                        const dots = dotsContainer.querySelectorAll('.pagination-dot');
+                        const currentPage = Math.floor(currentIndex / visibleItems);
+                        
+                        dots.forEach((dot, index) => {
+                            dot.classList.toggle('active', index === currentPage);
+                        });
+                    }
+                    
+                    // Handle window resize
+                    window.addEventListener('resize', function() {
+                        const newVisibleItems = calculateVisibleItems();
+                        
+                        if (newVisibleItems !== visibleItems) {
+                            visibleItems = newVisibleItems;
+                            updateItemWidths();
+                            
+                            // Reset position
+                            currentIndex = 0;
+                            updateSliderPosition();
+                            updateDots();
+                        }
+                    });
+                });
+                
+                console.log("Restaurant mode sliders initialized");
+            }
+            
+            // Listen for mode switching and initialize restaurant sliders
+            const restaurantOption = document.querySelector('.restaurant-option');
+            if (restaurantOption) {
+                restaurantOption.addEventListener('click', function() {
+                    // Initialize restaurant sliders when switching to restaurant mode
+                    setTimeout(initializeRestaurantSliders, 100);
+                });
+            }
+            
+            // Also initialize restaurant sliders on page load if we're in restaurant mode
+            if (document.body.classList.contains('body-restaurant')) {
+                initializeRestaurantSliders();
+            }
+        });
+    </script>
+    <!-- Additional Script to ensure sliders are initialized -->
+    <script>
+        // Run after page is fully loaded
+        window.addEventListener('load', function() {
+            console.log('Window fully loaded - Reinitializing sliders');
+            
+            // Force re-initialization of featured slider
+            const featuredSlider = document.querySelector('.featured-slider');
+            if (featuredSlider) {
+                console.log('Found featured slider - initializing');
+                
+                const sliderContainer = featuredSlider.querySelector('.slider-container');
+                const sliderItems = featuredSlider.querySelectorAll('.slider-item');
+                const prevBtn = featuredSlider.querySelector('.slider-prev');
+                const nextBtn = featuredSlider.querySelector('.slider-next');
+                const dotsContainer = featuredSlider.querySelector('.pagination-dots');
+                
+                if (sliderContainer && sliderItems.length > 0) {
+                    // Create pagination dots if needed
+                    if (dotsContainer && dotsContainer.children.length === 0) {
+                        console.log('Creating pagination dots');
+                        dotsContainer.innerHTML = '';
+                        
+                        // Calculate visible items based on screen width
+                        let visibleItems = 3; // Default for large screens
+                        if (window.innerWidth < 1200) visibleItems = 2;
+                        if (window.innerWidth < 768) visibleItems = 1;
+                        
+                        const pageCount = Math.ceil(sliderItems.length / visibleItems);
+                        
+                        for (let i = 0; i < pageCount; i++) {
+                            const dot = document.createElement('span');
+                            dot.classList.add('pagination-dot');
+                            if (i === 0) dot.classList.add('active');
+                            
+                            dot.addEventListener('click', function() {
+                                // Calculate visible items
+                                let visItems = 3;
+                                if (window.innerWidth < 1200) visItems = 2;
+                                if (window.innerWidth < 768) visItems = 1;
+                                
+                                // Calculate and set position
+                                const currentIndex = i * visItems;
+                                const itemWidth = 100 / visItems;
+                                const translateValue = -(currentIndex * itemWidth);
+                                sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                                sliderContainer.style.transform = `translateX(${translateValue}%)`;
+                                
+                                // Update active dot
+                                dotsContainer.querySelectorAll('.pagination-dot').forEach((d, idx) => {
+                                    d.classList.toggle('active', idx === i);
+                                });
+                            });
+                            
+                            dotsContainer.appendChild(dot);
+                        }
+                    }
+                    
+                    // Set initial item widths
+                    let visibleItems = 3;
+                    if (window.innerWidth < 1200) visibleItems = 2;
+                    if (window.innerWidth < 768) visibleItems = 1;
+                    
+                    const itemWidth = 100 / visibleItems;
+                    sliderItems.forEach(item => {
+                        item.style.width = `${itemWidth}%`;
+                    });
+                    
+                    // Make sure navigation buttons work
+                    if (prevBtn && !prevBtn.hasEventListener) {
+                        prevBtn.hasEventListener = true;
+                        prevBtn.addEventListener('click', function() {
+                            let currentTransform = sliderContainer.style.transform || 'translateX(0%)';
+                            let currentPosition = parseInt(currentTransform.replace('translateX(', '').replace('%)', ''));
+                            
+                            // Calculate visible items
+                            let visItems = 3;
+                            if (window.innerWidth < 1200) visItems = 2;
+                            if (window.innerWidth < 768) visItems = 1;
+                            
+                            const itemWidth = 100 / visItems;
+                            let newPosition = currentPosition + itemWidth;
+                            
+                            // Don't go past the beginning
+                            if (newPosition > 0) {
+                                newPosition = -((Math.ceil(sliderItems.length / visItems) - 1) * itemWidth);
+                            }
+                            
+                            // Update slider position
+                            sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                            sliderContainer.style.transform = `translateX(${newPosition}%)`;
+                            
+                            // Update active dot
+                            const activeDotIndex = Math.abs(Math.round(newPosition / itemWidth)) / visItems;
+                            if (dotsContainer) {
+                                dotsContainer.querySelectorAll('.pagination-dot').forEach((dot, index) => {
+                                    dot.classList.toggle('active', index === activeDotIndex);
+                                });
+                            }
+                        });
+                    }
+                    
+                    if (nextBtn && !nextBtn.hasEventListener) {
+                        nextBtn.hasEventListener = true;
+                        nextBtn.addEventListener('click', function() {
+                            let currentTransform = sliderContainer.style.transform || 'translateX(0%)';
+                            let currentPosition = parseInt(currentTransform.replace('translateX(', '').replace('%)', ''));
+                            
+                            // Calculate visible items
+                            let visItems = 3;
+                            if (window.innerWidth < 1200) visItems = 2;
+                            if (window.innerWidth < 768) visItems = 1;
+                            
+                            const itemWidth = 100 / visItems;
+                            let newPosition = currentPosition - itemWidth;
+                            
+                            // Don't go past the end
+                            if (Math.abs(newPosition) > (sliderItems.length - visItems) * itemWidth) {
+                                newPosition = 0;
+                            }
+                            
+                            // Update slider position
+                            sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                            sliderContainer.style.transform = `translateX(${newPosition}%)`;
+                            
+                            // Update active dot
+                            const activeDotIndex = Math.abs(Math.round(newPosition / itemWidth)) / visItems;
+                            if (dotsContainer) {
+                                dotsContainer.querySelectorAll('.pagination-dot').forEach((dot, index) => {
+                                    dot.classList.toggle('active', index === activeDotIndex);
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Initialize all menu category sliders
+            const menuSliders = document.querySelectorAll('.menu-slider');
+            menuSliders.forEach(slider => {
+                console.log('Found menu slider - initializing');
+                
+                const sliderContainer = slider.querySelector('.slider-container');
+                const sliderItems = slider.querySelectorAll('.slider-item');
+                const prevBtn = slider.querySelector('.slider-prev');
+                const nextBtn = slider.querySelector('.slider-next');
+                const dotsContainer = slider.closest('.menu-category') ? 
+                    slider.closest('.menu-category').querySelector('.pagination-dots') : null;
+                
+                if (sliderContainer && sliderItems.length > 0) {
+                    // Set initial item widths
+                    let visibleItems = 4;
+                    if (window.innerWidth < 1200) visibleItems = 3;
+                    if (window.innerWidth < 768) visibleItems = 2;
+                    if (window.innerWidth < 576) visibleItems = 1;
+                    
+                    const itemWidth = 100 / visibleItems;
+                    sliderItems.forEach(item => {
+                        item.style.width = `${itemWidth}%`;
+                    });
+                    
+                    // Make sure navigation buttons work
+                    if (prevBtn && !prevBtn.hasEventListener) {
+                        prevBtn.hasEventListener = true;
+                        prevBtn.addEventListener('click', function() {
+                            let currentTransform = sliderContainer.style.transform || 'translateX(0%)';
+                            let currentPosition = parseInt(currentTransform.replace('translateX(', '').replace('%)', ''));
+                            
+                            let visItems = 4;
+                            if (window.innerWidth < 1200) visItems = 3;
+                            if (window.innerWidth < 768) visItems = 2;
+                            if (window.innerWidth < 576) visItems = 1;
+                            
+                            const itemWidth = 100 / visItems;
+                            let newPosition = currentPosition + itemWidth;
+                            
+                            // Don't go past the beginning
+                            if (newPosition > 0) {
+                                newPosition = -((Math.ceil(sliderItems.length / visItems) - 1) * itemWidth);
+                            }
+                            
+                            // Update slider position
+                            sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                            sliderContainer.style.transform = `translateX(${newPosition}%)`;
+                            
+                            // Update active dot
+                            if (dotsContainer) {
+                                const activeDotIndex = Math.abs(Math.round(newPosition / itemWidth)) / visItems;
+                                dotsContainer.querySelectorAll('.pagination-dot').forEach((dot, index) => {
+                                    dot.classList.toggle('active', index === activeDotIndex);
+                                });
+                            }
+                        });
+                    }
+                    
+                    if (nextBtn && !nextBtn.hasEventListener) {
+                        nextBtn.hasEventListener = true;
+                        nextBtn.addEventListener('click', function() {
+                            let currentTransform = sliderContainer.style.transform || 'translateX(0%)';
+                            let currentPosition = parseInt(currentTransform.replace('translateX(', '').replace('%)', ''));
+                            
+                            let visItems = 4;
+                            if (window.innerWidth < 1200) visItems = 3;
+                            if (window.innerWidth < 768) visItems = 2;
+                            if (window.innerWidth < 576) visItems = 1;
+                            
+                            const itemWidth = 100 / visItems;
+                            let newPosition = currentPosition - itemWidth;
+                            
+                            // Don't go past the end
+                            if (Math.abs(newPosition) > (sliderItems.length - visItems) * itemWidth) {
+                                newPosition = 0;
+                            }
+                            
+                            // Update slider position
+                            sliderContainer.style.transition = 'transform 0.5s ease-in-out';
+                            sliderContainer.style.transform = `translateX(${newPosition}%)`;
+                            
+                            // Update active dot
+                            if (dotsContainer) {
+                                const activeDotIndex = Math.abs(Math.round(newPosition / itemWidth)) / visItems;
+                                dotsContainer.querySelectorAll('.pagination-dot').forEach((dot, index) => {
+                                    dot.classList.toggle('active', index === activeDotIndex);
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        // Initialize mode switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuModeContainer = document.querySelector('.menu-experience-switcher');
+            const toggleSlider = document.querySelector('.toggle-slider');
+            const menuSections = {
+                cafe: document.querySelector('.cafe-menu'),
+                restaurant: document.querySelector('.restaurant-menu')
+            };
+            
+            function switchMode(mode) {
+                const body = document.body;
+                const overlay = document.querySelector('.menu-transition-overlay');
+                
+                // Add transition overlay
+                overlay.classList.add('menu-transition-active');
+                
+                // Update mode preference
+                localStorage.setItem('menuMode', mode);
+                
+                setTimeout(() => {
+                    // Update body classes
+                    body.classList.remove('body-cafe', 'body-restaurant');
+                    body.classList.add(`body-${mode}`);
+                    
+                    // Update active state on mode options
+                    document.querySelectorAll('.mode-option').forEach(option => {
+                        option.classList.toggle('active', option.dataset.mode === mode);
+                    });
+                    
+                    // Update toggle slider icon
+                    toggleSlider.querySelector('i').className = mode === 'cafe' ? 'fas fa-coffee' : 'fas fa-utensils';
+                    
+                    // Update menu sections visibility
+                    Object.keys(menuSections).forEach(key => {
+                        if (menuSections[key]) {
+                            menuSections[key].style.display = key === mode ? 'block' : 'none';
+                        }
+                    });
+                    
+                    // Update section titles
+                    const sectionTitle = document.querySelector('.section-title');
+                    if (sectionTitle) {
+                        sectionTitle.textContent = mode === 'cafe' ? 'Café Menu' : 'Restaurant Menu';
+                    }
+                    
+                    // Remove transition overlay
+                    setTimeout(() => {
+                        overlay.classList.remove('menu-transition-active');
+                        
+                        // Reinitialize appropriate sliders
+                        if (mode === 'restaurant') {
+                            if (typeof initializeRestaurantSliders === 'function') {
+                                initializeRestaurantSliders();
+                            }
+                        } else {
+                            if (typeof initializeSliders === 'function') {
+                                initializeSliders();
+                            }
+                        }
+                    }, 500);
+                }, 300);
+            }
+            
+            // Add click handlers to mode options
+            document.querySelectorAll('.mode-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const mode = option.dataset.mode;
+                    switchMode(mode);
+                });
+            });
+            
+            // Initialize with saved mode or default to cafe
+            const savedMode = localStorage.getItem('menuMode') || 'cafe';
+            switchMode(savedMode);
+        });
+    </script>
+</body>
+</html>

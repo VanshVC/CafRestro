@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Online | Café & Restaurant Delight</title>
+    <!-- Primary Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="menu.css">
+    <link rel="stylesheet" href="order.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Order page JavaScript -->
+    <script src="order.js"></script>
+</head>
+<body class="body-cafe">
+    <!-- Alert Message Container -->
+    <div class="alert-message" id="alertMessage"></div>
+    
+    <!-- Header Section -->
+    <header>
+        <nav>
+            <div class="logo">Chaos <span>Café</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="reservation.html">Reservations</a></li>
+                <li><a href="order.html" class="active">Order Online</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+            </ul>
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <input type="text" class="search-input" placeholder="Search menu...">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="cart-icon">
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+                <span class="cart-count">3</span>
+            </div>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Page Banner -->
+    <div class="page-banner">
+        <div class="banner-content">
+            <h1 class="cafe-heading">Order Online - Café</h1>
+            <h1 class="restaurant-heading" style="display: none;">Order Online - Restaurant</h1>
+            <p class="cafe-description">Fresh pastries, artisan coffee, and light meals delivered to your doorstep</p>
+            <p class="restaurant-description" style="display: none;">Experience fine dining in the comfort of your home</p>
+        </div>
+    </div>
+
+    <!-- New Seasonal Menu Carousel -->
+    <section id="seasonal-menu" class="seasonal-carousel">
+        <div class="container">
+            <h2 class="section-title">Seasonal Highlights</h2>
+            <div class="season-selector">
+                <button class="season-btn active" data-season="spring">Spring</button>
+                <button class="season-btn" data-season="summer">Summer</button>
+                <button class="season-btn" data-season="autumn">Autumn</button>
+                <button class="season-btn" data-season="winter">Winter</button>
+            </div>
+            <div class="seasonal-slider-wrapper">
+                <div class="seasonal-slider">
+                    <div class="seasonal-card" data-season="spring">
+                        <div class="card-image">
+                            <img src="https://source.unsplash.com/800x600/?spring,food" alt="Spring Special">
+                            <div class="seasonal-badge">Spring</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Spring Fresh</h3>
+                            <p>Light and refreshing spring specials</p>
+                        </div>
+                    </div>
+                    <div class="seasonal-card" data-season="summer">
+                        <div class="card-image">
+                            <img src="https://source.unsplash.com/800x600/?summer,food" alt="Summer Special">
+                            <div class="seasonal-badge">Summer</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Summer Delight</h3>
+                            <p>Cool and refreshing summer favorites</p>
+                        </div>
+                    </div>
+                    <div class="seasonal-card" data-season="autumn">
+                        <div class="card-image">
+                            <img src="https://source.unsplash.com/800x600/?autumn,food" alt="Autumn Special">
+                            <div class="seasonal-badge">Autumn</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Autumn Harvest</h3>
+                            <p>Warm and comforting autumn specialties</p>
+                        </div>
+                    </div>
+                    <div class="seasonal-card" data-season="winter">
+                        <div class="card-image">
+                            <img src="https://source.unsplash.com/800x600/?winter,food" alt="Winter Special">
+                            <div class="seasonal-badge">Winter</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Winter Warmth</h3>
+                            <p>Hearty and satisfying winter classics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+
+    <!-- Enhanced Promotional Banner Slider -->
+    <div class="banner-slider-container">
+        <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
+        <div class="banner-slider">
+            <div class="banner-slide">
+                <div class="promo-banner">
+                    <img src="https://images.unsplash.com/photo-1544148103-0773bf10d330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Free Delivery Promotion">
+                    <div class="banner-overlay">
+                        <div class="banner-content">
+                            <h3>FREE DELIVERY</h3>
+                            <p>On all orders above ₹2000</p>
+                            <a href="#menu-ordering" class="banner-btn">Order Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="banner-slide">
+                <div class="promo-banner">
+                    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="New Menu Items">
+                    <div class="banner-overlay">
+                        <div class="banner-content">
+                            <h3>NEW MENU ITEMS</h3>
+                            <p>Try our new chef's specials</p>
+                            <a href="#featured-items" class="banner-btn">Explore</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="banner-slide">
+                <div class="promo-banner">
+                    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Happy Hour Promotion">
+                    <div class="banner-overlay">
+                        <div class="banner-content">
+                            <h3>HAPPY HOUR</h3>
+                            <p>30% off on all drinks from 5-7 PM</p>
+                            <a href="#menu-ordering" class="banner-btn">View Drinks</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    <div class="banner-dots">
+        <span class="dot active" data-index="0"></span>
+        <span class="dot" data-index="1"></span>
+        <span class="dot" data-index="2"></span>
+    </div>
+
+    <!-- Interactive Food Recommendation Quiz -->
+    <section id="food-quiz-section" class="interactive-section">
+        <div class="container">
+            <h2 class="section-title">Find Your Perfect Dish</h2>
+            <div class="quiz-container">
+                <div class="quiz-intro active" id="quiz-intro">
+                    <div class="quiz-intro-content">
+                        <h3>What Should You Order Today?</h3>
+                        <p>Answer a few quick questions and we'll recommend the perfect dish for your mood and taste preferences!</p>
+                        <div class="quiz-animation">
+                            <div class="plate-animation">
+                                <div class="food-item item1"></div>
+                                <div class="food-item item2"></div>
+                                <div class="food-item item3"></div>
+                                <div class="fork"></div>
+                            </div>
+                            </div>
+                        <button class="start-quiz-btn">Start Quiz</button>
+                        </div>
+                    </div>
+                
+                <div class="quiz-questions" id="quiz-questions">
+                    <div class="question-slide" id="question-1">
+                        <h3>What flavor profile are you craving today?</h3>
+                        <div class="answer-options">
+                            <div class="answer-option" data-value="spicy">
+                                <div class="option-icon"><i class="fas fa-pepper-hot"></i></div>
+                                <span>Spicy & Bold</span>
+                            </div>
+                            <div class="answer-option" data-value="sweet">
+                                <div class="option-icon"><i class="fas fa-cookie"></i></div>
+                                <span>Sweet & Indulgent</span>
+                            </div>
+                            <div class="answer-option" data-value="savory">
+                                <div class="option-icon"><i class="fas fa-cheese"></i></div>
+                                <span>Savory & Comforting</span>
+                        </div>
+                            <div class="answer-option" data-value="fresh">
+                                <div class="option-icon"><i class="fas fa-leaf"></i></div>
+                                <span>Fresh & Light</span>
+                    </div>
+                            </div>
+                        <div class="question-nav">
+                            <span class="question-counter">1/3</span>
+                            <button class="next-question">Next</button>
+                            </div>
+                        </div>
+                    
+                    <div class="question-slide" id="question-2">
+                        <h3>How hungry are you right now?</h3>
+                        <div class="answer-options">
+                            <div class="answer-option" data-value="small">
+                                <div class="option-icon"><i class="fas fa-cookie-bite"></i></div>
+                                <span>Just a Small Bite</span>
+                    </div>
+                            <div class="answer-option" data-value="medium">
+                                <div class="option-icon"><i class="fas fa-hamburger"></i></div>
+                                <span>Moderately Hungry</span>
+                            </div>
+                            <div class="answer-option" data-value="large">
+                                <div class="option-icon"><i class="fas fa-utensils"></i></div>
+                                <span>Definitely Starving</span>
+                            </div>
+                            <div class="answer-option" data-value="feast">
+                                <div class="option-icon"><i class="fas fa-pizza-slice"></i></div>
+                                <span>Could Eat a Feast</span>
+                        </div>
+                    </div>
+                        <div class="question-nav">
+                            <button class="prev-question">Previous</button>
+                            <span class="question-counter">2/3</span>
+                            <button class="next-question">Next</button>
+                </div>
+            </div>
+                    
+                    <div class="question-slide" id="question-3">
+                        <h3>What's your mood today?</h3>
+                        <div class="answer-options">
+                            <div class="answer-option" data-value="adventurous">
+                                <div class="option-icon"><i class="fas fa-mountain"></i></div>
+                                <span>Adventurous</span>
+                            </div>
+                            <div class="answer-option" data-value="comfort">
+                                <div class="option-icon"><i class="fas fa-home"></i></div>
+                                <span>Seeking Comfort</span>
+                            </div>
+                            <div class="answer-option" data-value="health">
+                                <div class="option-icon"><i class="fas fa-heartbeat"></i></div>
+                                <span>Health-Conscious</span>
+                        </div>
+                            <div class="answer-option" data-value="indulgent">
+                                <div class="option-icon"><i class="fas fa-crown"></i></div>
+                                <span>Treat Myself</span>
+                    </div>
+                            </div>
+                        <div class="question-nav">
+                            <button class="prev-question">Previous</button>
+                            <span class="question-counter">3/3</span>
+                            <button class="get-recommendation">Get My Recommendation</button>
+                            </div>
+                        </div>
+                    </div>
+                
+                <div class="quiz-result" id="quiz-result">
+                    <div class="result-loading">
+                        <div class="cooking-animation">
+                            <div class="pot">
+                                <div class="steam steam1"></div>
+                                <div class="steam steam2"></div>
+                                <div class="steam steam3"></div>
+                            </div>
+                            </div>
+                        <p>Preparing your perfect recommendation...</p>
+                        </div>
+                    <div class="result-content">
+                        <h3>Your Perfect Dish</h3>
+                        <div class="recommendation-card">
+                            <div class="recommendation-image">
+                                <img src="" alt="Recommended Dish" id="recommendation-img">
+                    </div>
+                            <div class="recommendation-details">
+                                <h4 id="recommendation-name"></h4>
+                                <p id="recommendation-desc"></p>
+                                <div class="recommendation-meta">
+                                    <span id="recommendation-price"></span>
+                                    <span id="recommendation-calories"></span>
+                            </div>
+                                <div class="recommendation-actions">
+                                    <button class="add-recommendation-btn">Add to Cart</button>
+                                    <button class="retake-quiz-btn">Retake Quiz</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Proceed to Payment Section -->
+    <div class="payment-section">
+        <div class="payment-container">
+            <div class="payment-steps">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Delivery Details</div>
+                        </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Payment Method</div>
+                    </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Confirm Order</div>
+                </div>
+            </div>
+            <div class="payment-wrapper">
+                <div class="payment-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-items">
+                        <div class="summary-item">
+                            <span>Item Name</span>
+                            <span>₹100</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Tax</span>
+                            <span>₹10</span>
+                    </div>
+                        <div class="summary-item">
+                            <span>Delivery Fee</span>
+                            <span>₹50</span>
+                </div>
+            </div>
+                    <div class="summary-item total">
+                        <span>Total</span>
+                        <span>₹160</span>
+                        </div>
+                    </div>
+                <div class="payment-form">
+                    <h3>Payment Details</h3>
+                    <div class="form-group">
+                        <label for="card-number">Card Number</label>
+                        <input type="text" id="card-number" placeholder="1234 5678 9012 3456">
+                </div>
+                    <div class="form-group">
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="text" id="expiry-date" placeholder="MM/YY">
+            </div>
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" placeholder="123">
+        </div>
+                    <div class="form-group">
+                        <label for="name-on-card">Name on Card</label>
+                        <input type="text" id="name-on-card" placeholder="John Doe">
+    </div>
+                    <div class="form-group">
+                        <label for="address">Delivery Address</label>
+                        <textarea id="address" placeholder="Enter your delivery address"></textarea>
+    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" placeholder="+1 123-456-7890">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="john@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="promo-code">Promo Code</label>
+                        <input type="text" id="promo-code" placeholder="Enter promo code">
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-methods">Payment Methods</label>
+                        <select id="payment-methods">
+                            <option value="credit-card">Credit Card</option>
+                            <option value="debit-card">Debit Card</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="cash-on-delivery">Cash on Delivery</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="save-card">Save Card</label>
+                        <input type="checkbox" id="save-card">
+                    </div>
+                    <div class="form-group">
+                        <label for="terms-and-conditions">Terms and Conditions</label>
+                        <input type="checkbox" id="terms-and-conditions">
+                    </div>
+                    <div class="form-group">
+                        <button class="pay-now-btn">Pay Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add the recommendation to cart
+        function addRecommendationToCart() {
+            const recommendation = document.getElementById('recommendation');
+            if (recommendation) {
+                cartCount++;
+                cartTotal += 350; // Example price for a recommended item
+                updateCartCountAndTotal();
+                showAlert("Item added to cart!");
+                setTimeout(() => {
+                    showQuizIntro();
+                }, 1500);
+            }
+        }
+    </script>
+
+    <!-- Floating Proceed to Pay Button -->
+    <div id="proceedToPayBtn" class="floating-pay-btn">
+        <div class="floating-pay-content">
+            <div class="cart-summary">
+                <span class="cart-item-count">0 Items</span>
+                <span class="cart-total-price">₹0</span>
+            </div>
+            <button class="proceed-pay-btn" onclick="showAlert('Your order is being processed. Proceeding to payment...')">
+                <span>Proceed to Pay</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Variables to track cart information
+        let cartCount = 0;
+        let cartTotal = 0;
+
+        // Function to update cart count and total in the floating button
+        function updateCartCountAndTotal() {
+            const cartItemCount = document.querySelector('.cart-item-count');
+            const cartTotalPrice = document.querySelector('.cart-total-price');
+            const floatingPayBtn = document.getElementById('proceedToPayBtn');
+            
+            if (cartItemCount && cartTotalPrice) {
+                cartItemCount.textContent = cartCount + (cartCount === 1 ? ' Item' : ' Items');
+                cartTotalPrice.textContent = '₹' + cartTotal;
+                
+                // Show the button if there are items in cart
+                if (cartCount > 0) {
+                    floatingPayBtn.classList.add('visible');
+                } else {
+                    floatingPayBtn.classList.remove('visible');
+                }
+            }
+        }
+
+        // Function to add item to cart
+        function addToCart(price) {
+            cartCount++;
+            cartTotal += price;
+            updateCartCountAndTotal();
+            showAlert("Item added to cart!");
+        }
+
+        // Initialize floating button state
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCountAndTotal();
+            
+            // Add click events to all Add to Cart buttons
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const price = parseInt(this.closest('.item-card').querySelector('.item-price').textContent.replace('₹', ''));
+                    addToCart(price);
+                });
+            });
+            
+            // Set up the proceed to pay button
+            document.querySelector('.proceed-pay-btn').addEventListener('click', function() {
+                if (cartCount > 0) {
+                    showAlert(`Processing your order of ${cartCount} items for ₹${cartTotal}...`);
+                    
+                    // Simulate processing time
+                    setTimeout(() => {
+                        // Scroll to payment section
+                        const paymentSection = document.querySelector('.payment-section');
+                        if (paymentSection) {
+                            paymentSection.scrollIntoView({ behavior: 'smooth' });
+                            
+                            // Update payment summary with actual cart information
+                            updatePaymentSummary();
+                            
+                            // Mark first step as complete and highlight second step
+                            document.querySelectorAll('.payment-steps .step')[0].classList.add('completed');
+                            document.querySelectorAll('.payment-steps .step')[1].classList.add('active');
+                        }
+                    }, 1500);
+                } else {
+                    showAlert("Your cart is empty. Please add items before proceeding.");
+                }
+            });
+        });
+        
+        // Function to update payment summary with cart information
+        function updatePaymentSummary() {
+            const summaryItems = document.querySelector('.summary-items');
+            if (summaryItems) {
+                // Clear existing items
+                summaryItems.innerHTML = '';
+                
+                // Add subtotal
+                const subtotalItem = document.createElement('div');
+                subtotalItem.className = 'summary-item';
+                subtotalItem.innerHTML = `<span>Subtotal</span><span>₹${cartTotal}</span>`;
+                summaryItems.appendChild(subtotalItem);
+                
+                // Add tax (10%)
+                const tax = Math.round(cartTotal * 0.1);
+                const taxItem = document.createElement('div');
+                taxItem.className = 'summary-item';
+                taxItem.innerHTML = `<span>Tax (10%)</span><span>₹${tax}</span>`;
+                summaryItems.appendChild(taxItem);
+                
+                // Add delivery fee
+                const deliveryFee = 50;
+                const deliveryItem = document.createElement('div');
+                deliveryItem.className = 'summary-item';
+                deliveryItem.innerHTML = `<span>Delivery Fee</span><span>₹${deliveryFee}</span>`;
+                summaryItems.appendChild(deliveryItem);
+                
+                // Update total
+                const total = cartTotal + tax + deliveryFee;
+                const totalElement = document.querySelector('.summary-item.total span:last-child');
+                if (totalElement) {
+                    totalElement.textContent = `₹${total}`;
+                }
+                
+                // Update pay now button
+                const payNowBtn = document.querySelector('.pay-now-btn');
+                if (payNowBtn) {
+                    payNowBtn.textContent = `Pay ₹${total}`;
+                    
+                    // Add click event to pay now button
+                    payNowBtn.addEventListener('click', function() {
+                        if (document.getElementById('terms-and-conditions').checked) {
+                            showAlert("Payment successful! Your order has been placed.");
+                            
+                            // Reset cart
+                            cartCount = 0;
+                            cartTotal = 0;
+                            updateCartCountAndTotal();
+                            
+                            // Mark all steps as complete
+                            document.querySelectorAll('.payment-steps .step').forEach(step => {
+                                step.classList.add('completed');
+                            });
+                            
+                            // Redirect to confirmation page after 2 seconds
+                            setTimeout(() => {
+                                // This would normally redirect to a confirmation page
+                                showAlert("Thank you for your order! Your food will be delivered soon.");
+                            }, 2000);
+                        } else {
+                            showAlert("Please accept the terms and conditions to proceed.");
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+
+    <div class="alert-message" id="alertMessage"></div>
+
+    <script>
+    // Alert Message Function
+    function showAlert(message) {
+        const alertBox = document.getElementById('alertMessage');
+        alertBox.textContent = message;
+        alertBox.classList.add('show');
+        
+        // After 3 seconds, hide the alert
+        setTimeout(() => {
+            alertBox.classList.remove('show');
+        }, 3000);
+    }
+    </script>
+
+    <script>
+    // Alert Message Function
+    function showAlert(message) {
+        const alertBox = document.getElementById('alertMessage');
+        alertBox.textContent = message;
+        alertBox.classList.add('show');
+        
+        // After 3 seconds, hide the alert
+        setTimeout(() => {
+            alertBox.classList.remove('show');
+        }, 3000);
+    }
+
+    // Initialize all interactive elements when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing order page functionality');
+        
+        // Initialize cart functionality
+        initCartFunctionality();
+
+        // Initialize order tabs
+        initOrderTabs();
+
+        // Initialize quiz functionality
+        console.log('Initializing quiz functionality...');
+        initQuizFunctionality();
+        console.log('Quiz initialization complete');
+
+        // Initialize menu functionality
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+            const addBtn = item.querySelector('.add-to-cart');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() {
+                    const name = item.querySelector('.item-name').textContent;
+                    const price = parseInt(item.querySelector('.item-price').textContent.replace('₹', ''));
+
+                    // Add to cart
+                    cartCount++;
+                    cartTotal += price;
+                    updateCartCountAndTotal();
+
+                    // Show notification
+                    showAlert(`${name} added to your cart!`);
+                });
+            }
+        });
+    });
+
+    // Banner Slider Functionality
+    function initBannerSlider() {
+        const sliderContainer = document.querySelector('.banner-slider');
+        const slides = document.querySelectorAll('.banner-slide');
+        const dots = document.querySelectorAll('.banner-dots .dot');
+        const prevBtn = document.querySelector('.prev-arrow');
+        const nextBtn = document.querySelector('.next-arrow');
+        let currentIndex = 0;
+        
+        // Set initial state
+        updateSliderState();
+        
+        // Auto slide every 5 seconds
+        let autoSlideInterval = setInterval(nextSlide, 5000);
+        
+        // Event Listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                prevSlide();
+                resetAutoSlideInterval();
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                nextSlide();
+                resetAutoSlideInterval();
+            });
+        }
+        
+        // Add click events to dots
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentIndex = index;
+                updateSliderState();
+                resetAutoSlideInterval();
+            });
+        });
+        
+        // Next slide function
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % slides.length;
+            updateSliderState();
+        }
+        
+        // Previous slide function
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            updateSliderState();
+        }
+        
+        // Update slider state
+        function updateSliderState() {
+            // Update slides
+            slides.forEach((slide, index) => {
+                if (index === currentIndex) {
+                    slide.style.display = 'block';
+                    slide.style.opacity = '1';
+                } else {
+                    slide.style.opacity = '0';
+                    setTimeout(() => {
+                        slide.style.display = 'none';
+                    }, 500);
+                }
+            });
+            
+            // Update dots
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+        
+        // Reset auto slide interval
+        function resetAutoSlideInterval() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(nextSlide, 5000);
+        }
+    }
+    
+    // Seasonal Menu Functionality
+    function initSeasonalMenu() {
+        const seasonBtns = document.querySelectorAll('.season-btn');
+        const seasonalCards = document.querySelectorAll('.seasonal-card');
+        
+        seasonBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const season = this.getAttribute('data-season');
+                
+                // Update active button
+                seasonBtns.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide cards based on season
+                seasonalCards.forEach(card => {
+                    if (card.getAttribute('data-season') === season) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    }
+    
+    // Quiz Functionality
+    function initQuizFunctionality() {
+        const startQuizBtn = document.querySelector('.start-quiz-btn');
+        const quizIntro = document.getElementById('quiz-intro');
+        const quizQuestions = document.getElementById('quiz-questions');
+        const quizResult = document.getElementById('quiz-result');
+        const questionSlides = document.querySelectorAll('.question-slide');
+        const nextBtns = document.querySelectorAll('.next-question');
+        const prevBtns = document.querySelectorAll('.prev-question');
+        const getRecommendationBtn = document.querySelector('.get-recommendation');
+
+        // Check if quiz elements exist
+        if (!quizIntro || !quizQuestions || !quizResult || questionSlides.length === 0) {
+            console.error('Quiz elements not found. Quiz functionality will not work.');
+            return;
+        }
+        
+        let currentQuestion = 0;
+        let answers = {
+            flavor: '',
+            hunger: '',
+            mood: ''
+        };
+        
+        // Start Quiz Button
+        if (startQuizBtn) {
+            startQuizBtn.addEventListener('click', function() {
+                quizIntro.classList.remove('active');
+                quizQuestions.classList.add('active');
+                showQuestion(0);
+            });
+        }
+        
+        // Next Question Buttons
+        nextBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Save the answer from current question
+                const currentQuestionEl = questionSlides[currentQuestion];
+                const selectedOption = currentQuestionEl.querySelector('.answer-option.selected');
+                
+                if (selectedOption) {
+                    // Save answer based on current question
+                    if (currentQuestion === 0) {
+                        answers.flavor = selectedOption.getAttribute('data-value');
+                    } else if (currentQuestion === 1) {
+                        answers.hunger = selectedOption.getAttribute('data-value');
+                    } else if (currentQuestion === 2) {
+                        answers.mood = selectedOption.getAttribute('data-value');
+                    }
+                    
+                    // Move to next question
+                    showQuestion(currentQuestion + 1);
+                } else {
+                    showAlert('Please select an option to continue');
+                }
+            });
+        });
+        
+        // Previous Question Buttons
+        prevBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                showQuestion(currentQuestion - 1);
+            });
+        });
+        
+        // Get Recommendation Button
+        if (getRecommendationBtn) {
+            getRecommendationBtn.addEventListener('click', function() {
+                // Save answer from last question
+                const currentQuestionEl = questionSlides[currentQuestion];
+                const selectedOption = currentQuestionEl.querySelector('.answer-option.selected');
+                
+                if (selectedOption) {
+                    answers.mood = selectedOption.getAttribute('data-value');
+                    
+                    // Show loading state
+                    quizQuestions.classList.remove('active');
+                    quizResult.classList.add('active');
+                    quizResult.querySelector('.result-loading').style.display = 'block';
+                    quizResult.querySelector('.result-content').style.display = 'none';
+                    
+                    // Simulate API call to get recommendation
+                    setTimeout(() => {
+                        // Hide loading, show recommendation
+                        quizResult.querySelector('.result-loading').style.display = 'none';
+                        quizResult.querySelector('.result-content').style.display = 'block';
+                        
+                        // Set recommendation data based on answers
+                        generateRecommendation(answers);
+                    }, 2000);
+                } else {
+                    showAlert('Please select an option to continue');
+                }
+            });
+        }
+        
+        // Option Selection
+        document.querySelectorAll('.answer-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from siblings
+                const parentQuestion = this.closest('.question-slide');
+                parentQuestion.querySelectorAll('.answer-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Add visual feedback
+                this.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+        
+        // Retake Quiz Button
+        const retakeQuizBtn = document.querySelector('.retake-quiz-btn');
+        if (retakeQuizBtn) {
+            retakeQuizBtn.addEventListener('click', function() {
+                // Reset everything
+                resetQuiz();
+                showQuizIntro();
+            });
+        }
+        
+        // Add Recommendation Button
+        const addRecommendationBtn = document.querySelector('.add-recommendation-btn');
+        if (addRecommendationBtn) {
+            addRecommendationBtn.addEventListener('click', function() {
+                const name = document.getElementById('recommendation-name').textContent;
+                const price = parseInt(document.getElementById('recommendation-price').textContent.replace('₹', ''));
+                
+                // Add to cart
+                cartCount++;
+                cartTotal += price;
+                updateCartCountAndTotal();
+                
+                // Show success message
+                showAlert(`${name} added to your cart!`);
+                
+                // Return to quiz intro
+                setTimeout(() => {
+                    showQuizIntro();
+                }, 1500);
+            });
+        }
+        
+        // Helper function to show question
+        function showQuestion(index) {
+            // Validate index
+            if (index < 0 || index >= questionSlides.length) return;
+            
+            // Hide all questions
+            questionSlides.forEach(slide => {
+                slide.style.display = 'none';
+                slide.classList.remove('active');
+            });
+            
+            // Show current question
+            questionSlides[index].style.display = 'block';
+            questionSlides[index].classList.add('active');
+            currentQuestion = index;
+        }
+        
+        // Helper function to reset quiz
+        function resetQuiz() {
+            // Reset answers
+            answers = {
+                flavor: '',
+                hunger: '',
+                mood: ''
+            };
+            
+            // Reset selected options
+            document.querySelectorAll('.answer-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Reset current question
+            currentQuestion = 0;
+        }
+        
+        // Helper function to show quiz intro
+        function showQuizIntro() {
+            quizIntro.classList.add('active');
+            quizQuestions.classList.remove('active');
+            quizResult.classList.remove('active');
+        }
+        
+        // Helper function to generate recommendation
+        function generateRecommendation(answers) {
+            let recommendation = {
+                name: '',
+                desc: '',
+                image: '',
+                price: 0,
+                calories: ''
+            };
+            
+            console.log('Generating recommendation based on answers:', answers);
+            
+            // Logic to determine recommendation based on answers
+            if (answers.flavor === 'spicy' && answers.hunger === 'large') {
+                recommendation = {
+                    name: 'Spicy Chicken Curry',
+                    desc: 'A fiery chicken curry with aromatic spices and herbs, served with steamed rice.',
+                    image: 'https://images.unsplash.com/photo-1631292784640-4ea0ca417f09?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                    price: 450,
+                    calories: '650 cal'
+                };
+            } else if (answers.flavor === 'sweet' && answers.mood === 'indulgent') {
+                recommendation = {
+                    name: 'Chocolate Lava Cake',
+                    desc: 'Decadent chocolate cake with a molten center, served with vanilla ice cream.',
+                    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                    price: 320,
+                    calories: '450 cal'
+                };
+            } else if (answers.flavor === 'fresh' && answers.mood === 'health') {
+                recommendation = {
+                    name: 'Mediterranean Salad Bowl',
+                    desc: 'Fresh greens, feta cheese, olives, and grilled chicken with a light lemon dressing.',
+                    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                    price: 380,
+                    calories: '320 cal'
+                };
+            } else if (answers.flavor === 'savory' && answers.hunger === 'medium') {
+                recommendation = {
+                    name: 'Mushroom Risotto',
+                    desc: 'Creamy arborio rice with wild mushrooms, truffle oil, and parmesan cheese.',
+                    image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                    price: 410,
+                    calories: '520 cal'
+                };
+            } else if (answers.flavor === 'savory' && answers.mood === 'comfort') {
+                recommendation = {
+                    name: 'Mac & Cheese',
+                    desc: 'Homestyle macaroni in a rich cheese sauce with a crispy breadcrumb topping.',
+                    image: 'https://images.unsplash.com/photo-1543352634-99a5d50ae78e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                    price: 350,
+                    calories: '580 cal'
+                };
+            } else if (answers.flavor === 'spicy' && answers.mood === 'adventurous') {
+                recommendation = {
+                    name: 'Thai Green Curry',
+                    desc: 'Authentic spicy Thai curry with bamboo shoots, bell peppers, and your choice of protein.',
+                    image: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                    price: 420,
+                    calories: '490 cal'
+                };
+            } else {
+                // Default recommendation based on most common preferences
+                const defaultOptions = [
+                    {
+                        name: 'Classic Burger & Fries',
+                        desc: 'Juicy beef patty with cheese, lettuce, tomato, and our secret sauce, served with crispy fries.',
+                        image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                        price: 350,
+                        calories: '750 cal'
+                    },
+                    {
+                        name: 'Margherita Pizza',
+                        desc: 'Traditional Italian pizza with tomato sauce, fresh mozzarella, basil leaves, and olive oil.',
+                        image: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                        price: 300,
+                        calories: '680 cal'
+                    },
+                    {
+                        name: 'Grilled Salmon',
+                        desc: 'Fresh Atlantic salmon fillet, grilled to perfection with herbs and served with seasonal vegetables.',
+                        image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                        price: 480,
+                        calories: '420 cal'
+                    }
+                ];
+                
+                // Choose a random default option
+                recommendation = defaultOptions[Math.floor(Math.random() * defaultOptions.length)];
+            }
+            
+            console.log('Recommendation generated:', recommendation);
+            
+            // Update UI with recommendation
+            document.getElementById('recommendation-name').textContent = recommendation.name;
+            document.getElementById('recommendation-desc').textContent = recommendation.desc;
+            document.getElementById('recommendation-img').src = recommendation.image;
+            document.getElementById('recommendation-price').textContent = `₹${recommendation.price}`;
+            document.getElementById('recommendation-calories').textContent = recommendation.calories;
+        }
+    }
+    
+    // Order Tabs Functionality
+    function initOrderTabs() {
+        const orderTabs = document.querySelectorAll('.order-tab');
+        
+        orderTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                orderTabs.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show/hide relevant content based on tab
+                const tabType = this.getAttribute('data-type');
+                
+                if (tabType === 'delivery') {
+                    document.querySelector('.delivery-form').style.display = 'block';
+                    document.querySelector('.pickup-form').style.display = 'none';
+                } else if (tabType === 'pickup') {
+                    document.querySelector('.delivery-form').style.display = 'none';
+                    document.querySelector('.pickup-form').style.display = 'block';
+                }
+            });
+        });
+    }
+    
+    // Cart Functionality
+    let cartCount = 0;
+    let cartTotal = 0;
+    
+    function initCartFunctionality() {
+        // Get cart elements
+        const cartIcon = document.querySelector('.cart-icon');
+        const cartCountEl = document.querySelector('.cart-count');
+        const cartModal = document.getElementById('cart-modal');
+        const closeCartBtn = document.querySelector('.close-cart');
+        const clearCartBtn = document.querySelector('.clear-cart-btn');
+        const checkoutBtn = document.querySelector('.checkout-btn');
+        
+        // Show cart modal when clicking on cart icon
+        if (cartIcon) {
+            cartIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                cartModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+        
+        // Close cart modal
+        if (closeCartBtn) {
+            closeCartBtn.addEventListener('click', function() {
+                cartModal.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Close cart when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === cartModal) {
+                cartModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Clear cart
+        if (clearCartBtn) {
+            clearCartBtn.addEventListener('click', function() {
+                clearCart();
+                showAlert('Cart cleared successfully!');
+            });
+        }
+        
+        // Checkout button
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function() {
+                if (cartCount > 0) {
+                    window.location.href = 'checkout.html';
+                } else {
+                    showAlert('Your cart is empty!');
+                }
+            });
+        }
+    }
+    
+    // Update cart count and total
+    function updateCartCountAndTotal() {
+        // Update count
+        const cartCountElement = document.querySelector('.cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = cartCount;
+            
+            // Show/hide based on count
+            if (cartCount > 0) {
+                cartCountElement.style.display = 'block';
+            } else {
+                cartCountElement.style.display = 'none';
+            }
+        }
+        
+        // Update total in cart modal
+        const cartTotalElement = document.querySelector('.cart-total-amount');
+        if (cartTotalElement) {
+            cartTotalElement.textContent = `₹${cartTotal}`;
+        }
+        
+        // Update subtotal
+        const subtotalElement = document.querySelector('.subtotal-amount');
+        if (subtotalElement) {
+            subtotalElement.textContent = `₹${cartTotal}`;
+        }
+        
+        // Calculate and update tax (10% of subtotal)
+        const taxElement = document.querySelector('.tax-amount');
+        if (taxElement) {
+            const tax = Math.round(cartTotal * 0.1);
+            taxElement.textContent = `₹${tax}`;
+        }
+        
+        // Calculate and update total (subtotal + tax + delivery)
+        const totalElement = document.querySelector('.total-amount');
+        if (totalElement) {
+            const tax = Math.round(cartTotal * 0.1);
+            const deliveryFee = cartTotal > 0 ? 50 : 0; // ₹50 delivery fee if cart is not empty
+            const total = cartTotal + tax + deliveryFee;
+            totalElement.textContent = `₹${total}`;
+        }
+    }
+    
+    // Show alert notification
+    function showAlert(message) {
+        // Create alert element if it doesn't exist
+        let alertContainer = document.querySelector('.alert-container');
+        if (!alertContainer) {
+            alertContainer = document.createElement('div');
+            alertContainer.className = 'alert-container';
+            document.body.appendChild(alertContainer);
+        }
+        
+        // Create alert
+        const alert = document.createElement('div');
+        alert.className = 'alert';
+        alert.textContent = message;
+        
+        // Add to container
+        alertContainer.appendChild(alert);
+        
+        // Show alert
+        setTimeout(() => {
+            alert.classList.add('show');
+        }, 10);
+        
+        // Remove after delay
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => {
+                alert.remove();
+            }, 300);
+        }, 3000);
+    }
+    
+    // Initialize all functionality when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize cart functionality
+        initCartFunctionality();
+        
+        // Initialize order tabs
+        initOrderTabs();
+        
+        // Initialize quiz functionality
+        initQuizFunctionality();
+        
+        // Initialize menu functionality
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+            const addBtn = item.querySelector('.add-to-cart');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() {
+                    const name = item.querySelector('.item-name').textContent;
+                    const price = parseInt(item.querySelector('.item-price').textContent.replace('₹', ''));
+                    
+                    // Add to cart
+                    cartCount++;
+                    cartTotal += price;
+                    updateCartCountAndTotal();
+                    
+                    // Show notification
+                    showAlert(`${name} added to your cart!`);
+                });
+            }
+        });
+    });
+
+    // Cart Modal Implementation
+    function initCartModal() {
+        const cartBtn = document.querySelector('.cart-icon');
+        const cartModal = document.querySelector('#cart-modal');
+        const closeBtn = document.querySelector('.close-cart');
+        const clearCartBtn = document.querySelector('.clear-cart-btn');
+        const checkoutBtn = document.querySelector('.checkout-btn');
+        
+        if (cartBtn && cartModal) {
+            // Open cart modal
+            cartBtn.addEventListener('click', function() {
+                cartModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close cart modal
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    cartModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+            
+            // Close when clicking outside modal
+            cartModal.addEventListener('click', function(e) {
+                if (e.target === cartModal) {
+                    cartModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            // Clear cart functionality
+            if (clearCartBtn) {
+                clearCartBtn.addEventListener('click', function() {
+                    clearCart();
+                    showAlert('Your cart has been cleared');
+                });
+            }
+            
+            // Checkout functionality
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function() {
+                    if (cartCount > 0) {
+                        window.location.href = 'checkout.html';
+                    } else {
+                        showAlert('Please add items to your cart first');
+                    }
+                });
+            }
+        }
+    }
+    
+    // Clear cart function
+    function clearCart() {
+        cartCount = 0;
+        cartTotal = 0;
+        updateCartCountAndTotal();
+        
+        // Clear cart items display
+        const cartItems = document.querySelector('.cart-items');
+        if (cartItems) {
+            cartItems.innerHTML = '<p class="empty-cart-message">Your cart is empty</p>';
+        }
+    }
+    
+    // Initialize cart modal
+    document.addEventListener('DOMContentLoaded', function() {
+        initCartModal();
+    });
+    </script>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>Your Cart</h3>
+                <button class="close-cart">&times;</button>
+            </div>
+            
+            <div class="cart-items">
+                <p class="empty-cart-message">Your cart is empty</p>
+                <!-- Cart items will be dynamically added here -->
+            </div>
+            
+            <div class="cart-footer">
+                <div class="cart-totals">
+                    <div class="totals-row">
+                        <span>Subtotal:</span>
+                        <span class="subtotal-amount">₹0</span>
+                    </div>
+                    <div class="totals-row">
+                        <span>Tax (10%):</span>
+                        <span class="tax-amount">₹0</span>
+                    </div>
+                    <div class="totals-row">
+                        <span>Delivery Fee:</span>
+                        <span class="delivery-fee">₹50</span>
+                    </div>
+                    <div class="totals-row total">
+                        <span>Total:</span>
+                        <span class="total-amount">₹0</span>
+                    </div>
+                </div>
+                
+                <div class="cart-actions">
+                    <button class="clear-cart-btn">Clear Cart</button>
+                    <button class="checkout-btn">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alert Container -->
+    <div class="alert-container"></div>
+</body>
+</html>

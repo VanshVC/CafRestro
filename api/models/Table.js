@@ -9,13 +9,13 @@ const tableSchema = new mongoose.Schema({
     capacity: {
         type: Number,
         required: true,
-        min: 2,
+        min: 1,
         max: 20
     },
     location: {
         type: String,
-        required: true,
-        enum: ['indoor', 'outdoor', 'private']
+        enum: ['window', 'main', 'private', 'outdoor'],
+        required: true
     },
     isAvailable: {
         type: Boolean,
@@ -25,7 +25,28 @@ const tableSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Reservation',
         default: null
+    },
+    status: {
+        type: String,
+        enum: ['available', 'reserved', 'occupied', 'maintenance'],
+        default: 'available'
+    },
+    lastStatusUpdate: {
+        type: Date,
+        default: Date.now
     }
+}, {
+    timestamps: true
 });
 
-module.exports = mongoose.model('Table', tableSchema); 
+// Middleware to update lastStatusUpdate
+tableSchema.pre('save', function(next) {
+    if (this.isModified('status')) {
+        this.lastStatusUpdate = new Date();
+    }
+    next();
+});
+
+const Table = mongoose.model('Table', tableSchema);
+
+module.exports = Table;
